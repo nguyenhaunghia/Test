@@ -1,5 +1,5 @@
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycbw9cYJo5028gyrclLmx4GhonCDTJuJAWsyiMfcGaDfD6-GWMUxJPKFTW_291iQBV0kR/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzJc3C6GuRa7c391PadxJrl38oT0HScVlIWIG3DorUX9rm8OzXYAGeGT6mi0AbRSOy6/exec";
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================

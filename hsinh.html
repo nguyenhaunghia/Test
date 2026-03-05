@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang cá nhân - Smart School</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body { background: radial-gradient(circle at top right, #4f46e5, #764ba2); min-height: 100vh; font-family: 'Inter', sans-serif; }
+    
+    /* Giao diện Thẻ nhiệm vụ */
+    .card-glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); }
+    .progress-bar { background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; position: relative; }
+    .progress-fill { height: 100%; width: 0%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+    .progress-fill.luot { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-fill.tb { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .progress-fill.cao { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    
+    /* Nút bấm làm bài */
+    .btn-play { border-radius: 10px; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .btn-play.complete { background: #16a34a; color: white; }
+    .btn-play.incomplete { background: #f97316; color: white; }
+    .btn-play:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+    .btn-play:disabled { cursor: not-allowed; opacity: 0.7; filter: grayscale(1); }
+    
+    /* Loading overlay */
+    .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: #4f46e5; transition: opacity 0.3s; }
+    
+    /* Custom Scrollbar cho bảng lịch sử */
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+  </style>
+</head>
+<body class="text-white antialiased">
+
+  <input type="file" id="uploadInput" style="display: none;" onchange="xuLyFileDaChon()">
+
+  <div id="loading" class="loading-overlay">
+    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+    <div id="loadingText" class="font-bold tracking-wide text-sm text-indigo-800">Đang tải dữ liệu...</div>
+  </div>
+
+  <div id="mainContent">
+    <header class="main-header sticky top-0 z-[1000]">
+      <div class="header-inner mx-auto px-4 md:px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3 cursor-pointer group" onclick="chuyenTrang('00_Index')">
+          <div class="logo-box bg-indigo-600 rounded-xl p-2 shadow-indigo-200 shadow-lg group-hover:scale-105 transition-transform"><i class="fas fa-graduation-cap text-white text-xl"></i></div>
+          <div class="flex flex-col leading-none hidden sm:flex"><span class="text-indigo-900 font-black text-lg tracking-tighter uppercase">Smart<span class="text-indigo-500">School</span></span><span class="text-[9px] text-slate-400 font-bold tracking-[0.1em]">VER 2.0 • 2026</span></div>
+        </div>
+        
+        <div id="userHeader" class="flex items-center gap-4">
+          <div class="user-profile-card flex items-center pl-4 pr-1.5 py-1.5 rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer">
+            <div class="text-right mr-3 hidden sm:block">
+              <div id="header-full-name" class="text-sm font-bold text-slate-800 leading-tight">Đang tải...</div>
+              <div class="flex items-center justify-end gap-2 mt-0.5">
+                <span id="header-object" class="text-[10px] font-bold text-indigo-600">---</span>
+                <span id="header-perm" class="role-badge guest">Guest</span>
+                <span id="header-user-id" class="text-[10px] text-slate-400 font-mono">ID: ----</span>
+              </div>
+            </div>
+            <div class="relative avatar-wrapper">
+              <img id="header-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=neutral" class="user-avatar" alt="Avatar">
+              <div class="status-dot online"></div>
+            </div>
+            <button onclick="dangXuat()" class="logout-mini-btn ml-2" title="Đăng xuất"><i class="fas fa-power-off"></i></button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+      <div class="mb-6 flex items-center justify-between">
+         <h2 class="text-2xl font-bold flex items-center"><i class="fas fa-tasks mr-3 text-indigo-300"></i>Nhiệm Vụ Học Tập</h2>
+         <span class="bg-white/20 px-4 py-1.5 rounded-full text-sm font-mono shadow-inner" id="classDisplay">Lớp: ---</span>
+      </div>
+
+      <div id="taskList" class="grid gap-6"></div>
+      
+      <div id="noTask" class="text-center py-20" style="display:none;">
+        <i class="fas fa-clipboard-check text-6xl text-white opacity-20 mb-4 animate-bounce"></i>
+        <p class="text-xl font-light opacity-80">Tuyệt vời! Hiện không có bài tập nào cần làm.</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <div id="customModal" class="fixed inset-0 z-[10000] flex items-center justify-center hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div><div id="modalContent" class="glass relative max-w-sm w-full mx-4 p-8 rounded-[2rem] shadow-2xl border border-white/20 transform scale-90 opacity-0 transition-all duration-300"><div class="text-center"><div id="modalIcon"></div><h3 id="modalTitle" class="text-2xl font-bold mb-2"></h3><p id="modalMessage" class="text-indigo-100 opacity-80 mb-8"></p><div class="flex space-x-3"><button id="btnCancel" class="flex-1 px-6 py-3 bg-white/10 rounded-2xl">Hủy bỏ</button><button id="btnConfirm" class="flex-1 px-6 py-3 bg-indigo-600 rounded-2xl">Đồng ý</button></div></div></div></div>
+
+  <script src="script.js"></script>
+  <script src="hsinh.js"></script>
+</body>
+</html>

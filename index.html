@@ -14,7 +14,8 @@
     .menu-item { transition: all 0.3s ease; padding: 10px 12px; border-radius: 12px; }
     .menu-item:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
     .submenu-container { max-height: 0; overflow: hidden; transition: all 0.4s ease-out; opacity: 0; padding-left: 1.5rem; }
-    .submenu-container.open { max-height: 150px; opacity: 1; margin-top: 0.5rem; }
+    /* Nới rộng max-height lên 200px để chứa đủ 3 mục menu con */
+    .submenu-container.open { max-height: 200px; opacity: 1; margin-top: 0.5rem; }
     .submenu-item { position: relative; padding-left: 1rem; border-left: 1px dashed rgba(255,255,255,0.3); }
     .rotate-icon { transition: transform 0.3s ease; }
     .rotate-icon.rotate { transform: rotate(90deg); }

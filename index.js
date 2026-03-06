@@ -107,7 +107,7 @@ function loadFeaturesCu() {
   const actionTL = isGV ? "chuyenTrang('2_SoandeTL')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGB = isGV ? "chuyenTrang('4_GBai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTH = isGV ? "chuyenTrang('4_THKQ')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
-  const actionGS = isGV ? "chuyenTrang('Gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionGS = isGV ? "chuyenTrang('gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
 
   // Cột 1: HỆ THỐNG
   const col1 = document.createElement('div');
@@ -182,3 +182,4 @@ window.onload = () => {
   }, 600);
 
 };
+

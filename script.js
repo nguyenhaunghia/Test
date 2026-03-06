@@ -22,10 +22,19 @@ async function callAPI(action, payload = {}, silent = false) {
 
 function chuyenTrang(fileCode) {
   const mapRoute = {
-    '00_Login': 'login.html', '1_SoanCH': 'soanch.html', '2_SoandeTL': 'soandeTL.html',
-    '2_SoandeTN': 'soandeTN.html', '3_HSinh': 'hsinh.html', '4_GBai': 'gbai.html',
-    '4_THKQ': 'thkq.html', '5_LBai': 'lbai.html', '6_OTap': 'otap.html',
-    '8_TKe': 'tke.html', '00_Index': 'index.html', '00_New': 'register.html'
+    '00_Login': 'login.html',
+    '1_SoanCH': 'soanch.html',
+    '2_SoandeTL': 'soandeTL.html',
+    '2_SoandeTN': 'soandeTN.html',
+    '3_HSinh': 'hsinh.html',
+    '4_GBai': 'gbai.html',
+    '4_THKQ': 'thkq.html',
+    '5_LBai': 'lbai.html',
+    '6_OTap': 'otap.html',
+    '8_TKe': 'tke.html',
+    '00_Index': 'index.html',
+    '00_New': 'register.html',
+    'gsat': 'gsat.html'
   };
   const targetHtml = mapRoute[fileCode] || fileCode + '.html';
   window.location.href = targetHtml;

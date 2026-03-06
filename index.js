@@ -24,8 +24,8 @@ function loadFeatures() {
   const actionGB = isGV ? "chuyenTrang('4_GBai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTH = isGV ? "chuyenTrang('4_THKQ')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   
-  // THÊM MỚI: Liên kết đến trang Giám sát học tập (Gsat.html)
-  const actionGS = isGV ? "chuyenTrang('Gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  // THÊM MỚI: Liên kết đến trang Giám sát học tập (gsat.html)
+  const actionGS = isGV ? "chuyenTrang('gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
 
   // Cột 1: HỆ THỐNG
   const col1 = document.createElement('div');
@@ -180,4 +180,5 @@ window.onload = () => {
     const loader = document.getElementById('loading');
     if(loader) loader.style.display = 'none'; 
   }, 600);
+
 };

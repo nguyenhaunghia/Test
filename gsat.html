@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giám Sát Học Tập - Smart School</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: #f4f7fe; min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; }
+    .header-glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .card-glass { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.03); border: 1px solid rgba(0,0,0,.05); }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: #4361ee; }
+    
+    .tab-btn { padding: 12px 24px; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.3s; cursor: pointer; white-space: nowrap; }
+    .tab-btn:hover { color: #4361ee; background: #eef2ff; border-radius: 8px 8px 0 0; }
+    .tab-btn.active { color: #4361ee; border-bottom-color: #4361ee; background: transparent; }
+    
+    .table-container { max-height: 550px; overflow-y: auto; }
+    .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+    .table-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+  </style>
+</head>
+<body class="antialiased relative">
+
+<div id="loading" class="loading-overlay">
+  <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4 shadow-lg"></div>
+  <div class="font-bold tracking-wide text-sm text-indigo-800" id="loadingText">Đang tải dữ liệu giám sát...</div>
+</div>
+
+<header class="header-glass sticky top-0 z-50 w-full">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center space-x-3 cursor-pointer w-full md:w-auto" onclick="chuyenTrang('00_Index')">
+      <div class="bg-indigo-600 p-2 rounded-xl shadow-md"><i class="fas fa-arrow-left text-white text-xl"></i></div>
+      <div class="hidden sm:block">
+        <h1 class="text-xl font-bold tracking-tight text-slate-800">Giám Sát Tiến Độ</h1>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2 w-full md:w-auto">
+      <select id="classSelect" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 font-semibold min-w-[110px]">
+        <option value="">-- Lớp --</option>
+      </select>
+      <select id="dateSelect" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 font-semibold min-w-[130px]">
+        </select>
+      <button onclick="fetchDataGiamSat()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-2.5 rounded-lg shadow-md transition-all flex items-center justify-center" title="Lọc dữ liệu">
+        <i class="fas fa-filter"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  
+  <div class="card-glass overflow-hidden">
+    <div class="flex overflow-x-auto border-b border-slate-200 hide-scrollbar bg-slate-50/50">
+      <div class="tab-btn active" onclick="switchTab('tab-auth', this)"><i class="fas fa-shield-alt mr-2"></i>1. Trạng thái Đăng nhập</div>
+      <div class="tab-btn" onclick="switchTab('tab-tn', this)"><i class="fas fa-check-double mr-2"></i>2. Tiến độ Trắc nghiệm</div>
+      <div class="tab-btn" onclick="switchTab('tab-tl', this)"><i class="fas fa-file-signature mr-2"></i>3. Tiến độ Tự luận</div>
+    </div>
+
+    <div id="tab-auth" class="tab-content p-6 block">
+      <div class="mb-4 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-slate-800">Cảnh báo bảo mật tài khoản</h3>
+        <span class="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold hidden sm:inline-block"><i class="fas fa-exclamation-triangle"></i> Cảnh báo: Đăng Nhập > Đăng Xuất</span>
+      </div>
+      <div class="table-container border border-slate-200 rounded-xl">
+        <table class="w-full text-sm text-left text-slate-600 relative">
+          <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+            <tr>
+              <th class="px-4 py-3 w-12 text-center">STT</th>
+              <th class="px-4 py-3">Mã HS</th>
+              <th class="px-4 py-3">Họ và Tên</th>
+              <th class="px-4 py-3 text-center">Login</th>
+              <th class="px-4 py-3 text-center">Logout</th>
+              <th class="px-4 py-3 text-center">Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="auth-tbody" class="divide-y divide-slate-100">
+            <tr><td colspan="6" class="text-center py-8 text-slate-400">Vui lòng chọn Lớp và Lọc dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-tn" class="tab-content p-6 hidden">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">Danh Sách Nộp Bài Trắc Nghiệm</h3>
+      <div class="table-container border border-slate-200 rounded-xl">
+        <table class="w-full text-sm text-left text-slate-600 relative">
+          <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+            <tr>
+              <th class="px-4 py-3 w-12 text-center">STT</th>
+              <th class="px-4 py-3">Mã HS</th>
+              <th class="px-4 py-3">Họ và Tên</th>
+              <th class="px-4 py-3 text-center">Tổng Nộp</th>
+              <th class="px-4 py-3 w-12 text-center">Xem</th>
+            </tr>
+          </thead>
+          <tbody id="tn-tbody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="text-center py-8 text-slate-400">Vui lòng chọn Lớp và Lọc dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-tl" class="tab-content p-6 hidden">
+      <h3 class="text-lg font-bold text-slate-800 mb-4">Danh Sách Nộp Bài Tự Luận</h3>
+      <div class="table-container border border-slate-200 rounded-xl">
+        <table class="w-full text-sm text-left text-slate-600 relative">
+          <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+            <tr>
+              <th class="px-4 py-3 w-12 text-center">STT</th>
+              <th class="px-4 py-3">Mã HS</th>
+              <th class="px-4 py-3">Họ và Tên</th>
+              <th class="px-4 py-3 text-center">Tổng Nộp</th>
+              <th class="px-4 py-3 w-12 text-center">Xem</th>
+            </tr>
+          </thead>
+          <tbody id="tl-tbody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="text-center py-8 text-slate-400">Vui lòng chọn Lớp và Lọc dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+<script src="script.js"></script>
+<script src="gsat.js"></script>
+</body>
+</html>

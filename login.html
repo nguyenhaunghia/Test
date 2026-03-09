@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập Hệ Thống</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ================= TONE AQUA DUBAI PASTEL ================= */
+    body {
+      /* Background chuyển sang dải Aqua biển sâu */
+      background: radial-gradient(circle at top right, #00b5e2, #004c6d);
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.95); /* Thêm độ mờ nhẹ tạo hiệu ứng kính */
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 28px;
+      /* Đổ bóng tone Deep Navy */
+      box-shadow: 0 25px 50px -12px rgba(0, 76, 109, 0.5);
+      border: 1px solid rgba(0, 181, 226, 0.2);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      z-index: 10;
+    }
+    .login-box:hover {
+      box-shadow: 0 35px 60px -15px rgba(0, 181, 226, 0.4); /* Glow xanh Aqua khi hover hộp */
+      transform: translateY(-2px);
+    }
+    
+    /* INPUT FIELDS */
+    .custom-input {
+      width: 100%;
+      background: #f0f9ff; /* Nền xanh pastel nhạt */
+      border: 2px solid transparent;
+      border-radius: 12px;
+      color: #1e293b;
+      transition: all 0.3s;
+      outline: none;
+      font-size: 15px;
+    }
+    #taiKhoan {
+      padding: 16px 16px 16px 55px !important;
+    }
+    #matKhau {
+      padding: 14px 16px 14px 45px;
+    }
+    .custom-input:focus {
+      background: #fff;
+      border-color: #00b5e2; /* Viền Aqua khi focus */
+      box-shadow: 0 0 0 4px rgba(0, 181, 226, 0.15); /* Glow Aqua */
+    }
+    .custom-input:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    
+    /* ICONS */
+    .user-icon { left: 20px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #94a3b8; pointer-events: none; transition: 0.3s; }
+    .lock-icon { left: 18px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; transition: 0.3s; }
+    .custom-input:focus ~ .user-icon, .custom-input:focus ~ .lock-icon { color: #00b5e2; } /* Icon đổi màu khi focus input */
+    
+    .toggle-pass { right: 18px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; padding: 5px; z-index: 20; }
+    .toggle-pass:hover { color: #00b5e2; }
+    
+    /* LẮC LỖI */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    .shake-element { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: #fb7185 !important; }
+    
+    /* BUTTON ĐĂNG NHẬP */
+    .btn-login {
+      /* Gradient từ Aqua sang Deep Navy */
+      background: linear-gradient(135deg, #00b5e2, #004c6d);
+      color: white;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      width: 100%;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 181, 226, 0.4);
+      position: relative;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .btn-login:hover:not(:disabled) { 
+      transform: translateY(-2px); 
+      box-shadow: 0 10px 25px rgba(0, 181, 226, 0.6); /* Glow rực rỡ hơn khi hover */
+      background: linear-gradient(135deg, #00c9fa, #005a82); /* Sáng lên một chút */
+    }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; box-shadow: none; }
+    
+    /* Dải ngăn cách "Hoặc" */
+    .divider {
+      position: relative;
+      margin: 25px 0;
+      text-align: center;
+    }
+    .divider::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: #e0f2fe; /* Đường line màu pastel nhạt */
+    }
+    .divider span {
+      position: relative;
+      background: #fff;
+      padding: 0 12px;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    /* OVERLAY & MODAL */
+    .loading-overlay { position: fixed; inset: 0; background: rgba(240, 249, 255, 0.95); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9998; color: #00b5e2; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 76, 109, 0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-box { background: white; padding: 32px; border-radius: 24px; width: 90%; max-width: 420px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid #e0f2fe; }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .input-group { position: relative; margin-bottom: 16px; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <div id="loading" class="loading-overlay">
+    <div class="w-16 h-16 border-4 border-[#00b5e2] border-t-transparent rounded-full animate-spin mb-4"></div>
+    <div class="font-bold tracking-wide text-lg animate-pulse">Đang kết nối hệ thống...</div>
+  </div>
+
+  <div class="flex flex-col items-center justify-center min-h-screen px-4">
+    <div class="login-box">
+      <div class="relative inline-block mb-6">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-24 h-24 rounded-full bg-[#f0f9ff] border-2 border-[#00b5e2] p-2 shadow-inner">
+      </div>
+      <h2 class="text-3xl font-bold text-[#004c6d] mb-1">Chào mừng bạn!</h2>
+      <p class="text-gray-500 text-sm mb-8">Hệ thống trắc nghiệm thông minh</p>
+      
+      <div class="input-group">
+        <i class="fas fa-user absolute user-icon"></i>
+        <input type="text" list="taiKhoanList" id="taiKhoan" class="custom-input" 
+               placeholder="UserID, NickName hoặc Email" 
+               onkeydown="handleEnter(event, 'matKhau')">
+        <datalist id="taiKhoanList"></datalist>
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-lock absolute lock-icon"></i>
+        <input type="password" id="matKhau" class="custom-input" placeholder="Mật khẩu" 
+               onkeydown="handleEnter(event, 'login')">
+        <i class="fas fa-eye toggle-pass absolute" onclick="togglePassword('matKhau', this)"></i>
+      </div>
+
+      <button id="loginBtn" class="btn-login" onclick="dangNhap()">
+        <span>Đăng nhập</span>
+      </button>
+
+      <div class="divider">
+        <span>Hoặc đăng nhập với</span>
+      </div>
+
+      <div id="googleBtn" class="flex justify-center mb-4"></div>
+
+      <div class="flex justify-between items-center mt-6 text-sm">
+         <a href="#" onclick="showToast('Vui lòng liên hệ GVCN để cấp lại mật khẩu', 'warning')" class="text-gray-500 hover:text-[#00b5e2] transition font-medium">Quên mật khẩu?</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="changePassModal" class="modal-overlay">
+    <div class="modal-box text-center">
+      <div class="w-16 h-16 bg-amber-100 text-[#f59e0b] rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <h3 class="text-xl font-bold text-[#004c6d] mb-2">Yêu cầu bảo mật</h3>
+      <p class="text-gray-600 mb-6 text-sm">Bạn đang dùng mật khẩu mặc định. Vui lòng đổi mật khẩu mới để tiếp tục.</p>
+      
+      <div class="input-group mb-3 relative">
+        <i class="fas fa-key absolute lock-icon"></i>
+        <input type="password" id="newPass" class="custom-input pl-12 py-3" placeholder="Mật khẩu mới"
+               onkeydown="handleEnter(event, 'confirmPass')">
+      </div>
+      
+      <div class="input-group mb-6 relative">
+        <i class="fas fa-check-circle absolute lock-icon"></i>
+        <input type="password" id="confirmPass" class="custom-input pl-12 py-3" placeholder="Xác nhận mật khẩu" 
+               onkeydown="handleEnter(event, 'changePass')">
+      </div>
+      
+      <button id="confirmBtn" onclick="confirmChangePass()" class="btn-login">Xác nhận thay đổi</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

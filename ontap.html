@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ôn tập tự luyện - Smart School</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* =========================================================================================
+       CSS TONE AQUA DUBAI PASTEL SÁNG 
+       ========================================================================================= */
+    :root {
+      --primary: #00b5e2; 
+      --primary-dark: #004c6d; 
+      --success: #10b981;
+      --danger: #fb7185;
+      --gray-50: #f0f9ff;
+      --gray-100: #e0f2fe;
+      --gray-200: #bae6fd;
+      --gray-800: #004c6d;
+      --radius: 20px;
+      --radius-sm: 14px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #38bdf8, #bae6fd); min-height: 100vh; color: #1e293b; }
+
+    .loading-overlay { position: fixed; inset: 0; background: rgba(240,249,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: var(--primary); }
+
+    /* ==================== NỘI DUNG CHÍNH ==================== */
+    .container { max-width: 1000px; margin: auto; padding: 0 16px; margin-top: 30px; }
+
+    /* Khối Chọn Đề */
+    #selectSection { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 32px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,76,109,0.05); margin-bottom: 28px; border: 1px solid rgba(0,181,226,0.15); }
+    .select-group { margin-bottom: 24px; display: grid; gap: 20px; grid-template-columns: 1fr 1fr 1fr; }
+    .input-row { display: flex; flex-direction: column; gap: 8px; }
+    .input-row label { font-weight: 700; color: var(--gray-800); font-size: 0.95rem; }
+    .input-row select { width: 100%; padding: 12px 16px; font-size: 1rem; border-radius: 12px; border: 2px solid var(--gray-100); transition: all 0.3s; background: var(--gray-50); color: var(--gray-800); font-weight: 500; outline: none; }
+    .input-row select:disabled { background: #f8fafc; color: #94a3b8; border-color: #f1f5f9; cursor: not-allowed; }
+    .input-row select:hover:enabled { border-color: var(--primary-dark); }
+    .input-row select:focus:enabled { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,181,226,0.15); background: white; }
+
+    /* Nút Bắt đầu & Nộp bài */
+    .btn-start, .btn-submit { width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 1.2rem; font-weight: 800; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-start { background: linear-gradient(135deg, #00b5e2, #0ea5e9); color: white; box-shadow: 0 8px 25px rgba(0,181,226,0.3); }
+    .btn-start:enabled:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,181,226,0.4); background: linear-gradient(135deg, #00c9fa, #0284c7); }
+    .btn-start:disabled { opacity: 0.6; background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+    .btn-submit { background: linear-gradient(135deg, var(--gray-800), #0f172a); color: white; display: none; box-shadow: 0 8px 25px rgba(0,76,109,0.3); margin-top: 20px; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+    /* ==================== KHUNG CÂU HỎI (CARD) ==================== */
+    .question { background: white; border-radius: var(--radius); padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,76,109,0.05); border: 1px solid var(--gray-100); transition: all .3s; }
+    .question:hover { box-shadow: 0 15px 40px rgba(0,181,226,0.1); border-color: var(--primary); transform: translateY(-2px); }
+    .question.split-layout { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; }
+    .question.split-layout .question-main { display: flex; flex-direction: column; min-width: 0; }
+    .question.split-layout .question-image-wrapper { height: 80mm; width: fit-content; max-width: 100%; background: var(--gray-50); border-radius: var(--radius-sm); overflow: hidden; box-shadow: 0 4px 12px rgba(0,76,109,0.05); align-self: start; padding: 8px; border: 1px solid var(--gray-100); }
+    .question.split-layout .question-image { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block; border-radius: 8px; }
+
+    .question-header { display: flex; align-items: flex-start; margin-bottom: 20px; gap: 16px; }
+    .question-number { flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 1.2rem; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,181,226,0.3); }
+    .question-text { flex: 1; font-size: 1.15rem; font-weight: 700; line-height: 1.6; color: var(--gray-800); text-align: justify; }
+
+    .question:not(.split-layout) .question-image-wrapper { background: var(--gray-50); border-radius: 16px; border: 1px solid var(--gray-100); padding: 8px; margin: 16px 0 24px 0; text-align: center; }
+    .question:not(.split-layout) .question-image { width: 100%; max-height: 60mm; object-fit: contain; border-radius: 8px; }
+
+    /* Khối đáp án */
+    .answer-container { padding: 10px 0; margin-top: 8px; }
+    .answer-item { display: flex; align-items: center; padding: 14px 20px; margin: 10px 0; background: var(--gray-50); border: 2px solid transparent; border-radius: 16px; cursor: pointer; transition: all .2s; user-select: none; }
+    .answer-item:hover { background: var(--gray-100); border-color: var(--gray-200); }
+    .answer-item.selected { background: var(--gray-100); border-color: var(--primary); box-shadow: 0 4px 15px rgba(0,181,226,0.15); }
+    .answer-options { display: flex; align-items: center; justify-content: flex-start; width: 44px; flex-shrink: 0; }
+    .tf-options { display: flex; gap: 16px; align-items: center; justify-content: flex-start; width: 160px; }
+    .answer-content { flex: 1; font-size: 1.05rem; font-weight: 600; color: #1e293b; text-align: justify; }
+    .answer-label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--gray-800); font-weight: 600; font-size: 0.95rem; }
+    .answer-label input[type="radio"], .answer-label input[type="checkbox"] { accent-color: var(--primary); width: 20px; height: 20px; cursor: pointer; margin: 0; }
+
+    /* Kết quả & Xếp hạng */
+    .result-item { background: white; border-radius: 24px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,76,109,0.05); border: 1px solid var(--gray-200); position: relative; overflow: hidden; }
+    .result-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; }
+    .result-item.correct { background: #f0fdf4; border-color: #bbf7d0; }
+    .result-item.correct::before { background: var(--success); }
+    .result-item.wrong { background: #fff1f2; border-color: #fecdd3; }
+    .result-item.wrong::before { background: var(--danger); }
+
+    .final-result { margin: 40px auto; max-width: 600px; padding: 40px 32px; border-radius: 28px; text-align: center; background: white; color: var(--gray-800); box-shadow: 0 20px 50px rgba(0,76,109,0.1); border: 1px solid var(--gray-100); }
+    .final-result h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 16px; }
+    .final-result .score { font-size: 4.5rem; font-weight: 900; margin: 20px 0; background: linear-gradient(135deg, #00b5e2, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 4px 20px rgba(0,181,226,0.2); }
+    .final-result .score small { font-size: 2rem; color: #94a3b8; -webkit-text-fill-color: #94a3b8; }
+    .final-result p { font-size: 1.1rem; margin: 12px 0; color: #64748b; font-weight: 600; }
+
+    .btn-ranking { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 420px; margin: 20px auto 40px; padding: 18px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 20px; font-size: 1.3rem; font-weight: 800; text-decoration: none; box-shadow: 0 10px 25px rgba(245,158,11,0.3); transition: all .4s; }
+    .btn-ranking:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(245,158,11,0.4); }
+
+    .katex { font-size: 1.18em !important; }
+    .katex-display { margin: 1em 0; }
+
+    @media(max-width:768px) {
+      .select-group { grid-template-columns: 1fr; gap: 16px; }
+      .question.split-layout { grid-template-columns: 1fr; gap: 20px; }
+      .question.split-layout .question-image-wrapper { height: auto; width: 100%; margin-top: 12px; }
+      .final-result .score { font-size: 3.5rem; }
+    }
+
+    /* =========================================================================
+       1. CỐ ĐỊNH TOAST XUỐNG GÓC DƯỚI BÊN PHẢI (Dự phòng cho script.js)
+       ========================================================================= */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast-container > div {
+      pointer-events: auto;
+    }
+
+    /* =========================================================================
+       2. GIAO DIỆN BẢNG CÂU HỎI (DẠNG MODAL VÀ NÚT NỔI)
+       ========================================================================= */
+    .fab-palette {
+      display: none; 
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 9990;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00b5e2, #004c6d);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 181, 226, 0.4);
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+      align-items: center;
+      justify-content: center;
+    }
+    .fab-palette:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 181, 226, 0.5);
+    }
+
+    .palette-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .palette-btn:hover {
+      border-color: #00b5e2;
+      color: #00b5e2;
+    }
+    .palette-btn.answered {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading" class="loading-overlay">
+    <div class="w-14 h-14 border-4 border-[#00b5e2] border-t-transparent rounded-full animate-spin mb-4"></div>
+    <div class="font-bold tracking-wide text-lg" id="loadingText">Đang kết nối hệ thống...</div>
+  </div>
+
+  <div id="global-header"></div>
+
+  <div class="container">
+    <div id="selectSection">
+      <div class="select-group">
+        <div class="input-row">
+          <label><i class="fas fa-book text-[#00b5e2] mr-1"></i> Môn học</label>
+          <select id="mon" onchange="loadKhoi()"></select>
+        </div>
+        <div class="input-row">
+          <label><i class="fas fa-layer-group text-[#00b5e2] mr-1"></i> Khối lớp</label>
+          <select id="khoi" onchange="loadChuDe()" disabled></select>
+        </div>
+        <div class="input-row">
+          <label><i class="fas fa-tags text-[#00b5e2] mr-1"></i> Chủ đề</label>
+          <select id="chude" onchange="loadDeInfo()" disabled></select>
+        </div>
+      </div>
+      <button id="btnStart" class="btn-start" disabled>Vui lòng chọn mục để bắt đầu</button>
+    </div>
+
+    <div id="quiz"></div>
+    <button id="submit" class="btn-submit" disabled><i class="fas fa-paper-plane"></i> Nộp bài</button>
+    <div id="msg"></div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <button id="fabPaletteBtn" class="fab-palette" onclick="document.getElementById('paletteModal').style.display='flex'" title="Mở danh sách câu hỏi">
+    <i class="fas fa-th-large"></i>
+  </button>
+
+  <div id="paletteModal" style="display:none; position:fixed; inset:0; background:rgba(0,30,43,0.6); z-index:99999; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(4px);">
+    <div style="background:#fff; width:100%; max-width:450px; border-radius:24px; overflow:hidden; box-shadow:0 25px 50px rgba(0,181,226,0.2);">
+      <div style="background:linear-gradient(135deg, #00b5e2, #004c6d); color:white; padding:16px 24px; font-size:1.1rem; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fas fa-tasks mr-2"></i> Bảng câu hỏi</span>
+        <span onclick="document.getElementById('paletteModal').style.display='none'" style="cursor:pointer; font-size:28px; line-height:1;">&times;</span>
+      </div>
+      <div style="padding:24px; max-height:60vh; overflow-y:auto; background:#f0f9ff;">
+        <div id="paletteGrid" style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="ontap.js"></script>
+
+</body>
+</html>

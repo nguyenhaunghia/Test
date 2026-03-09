@@ -1,0 +1,220 @@
+/* ==================== HỆ THỐNG TOAST ==================== */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+.toast { background: white; min-width: 300px; padding: 16px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,76,109,0.15); display: flex; align-items: center; gap: 15px; transform: translateX(120%); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: auto; border-left: 6px solid #00b5e2; position: relative; }
+.toast.show { transform: translateX(0); }
+.toast-content { display: flex; flex-direction: column; }
+.toast-title { font-weight: 700; color: #004c6d; font-size: 15px; }
+.toast-message { color: #64748b; font-size: 13px; }
+.toast-close { position: absolute; right: 10px; top: 10px; color: #94a3b8; cursor: pointer; background: none; border: none; font-size: 14px; }
+.toast.success { border-left-color: #10b981; } .toast.success i { color: #10b981; }
+.toast.error { border-left-color: #fb7185; } .toast.error i { color: #fb7185; }
+.toast.warning { border-left-color: #f59e0b; } .toast.warning i { color: #f59e0b; }
+.toast.info { border-left-color: #00b5e2; } .toast.info i { color: #00b5e2; }
+
+/* ==================== THANH TIÊU ĐỀ (MAIN HEADER) ==================== */
+.main-header {
+  height: 72px;
+  background: rgba(240, 249, 255, 0.85);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(0, 181, 226, 0.2);
+  display: flex; align-items: center;
+}
+.header-inner { width: 100%; max-width: 1280px; }
+
+/* USER PROFILE CARD TRÊN HEADER */
+.user-profile-card {
+  height: 52px; background: white; border: 1px solid #e0f2fe; border-radius: 18px;
+  display: flex; align-items: center; padding: 0 6px 0 16px;
+  box-shadow: 0 2px 5px rgba(0,181,226,0.05); transition: all 0.3s;
+}
+.user-profile-card:hover { background: #f0f9ff; border-color: #00b5e2; transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(0,181,226,0.1); }
+
+/* Role Badge */
+.role-badge { font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; color: white; background: #94a3b8; }
+.role-badge.admin-role { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.role-badge.teacher-role { background: linear-gradient(135deg, #00b5e2, #004c6d); }
+
+/* Avatar Control */
+.avatar-wrapper { position: relative; flex-shrink: 0; }
+.user-avatar { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,181,226,0.15); }
+.status-dot { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #10b981; }
+.logout-mini-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; color: #94a3b8; transition: all 0.2s; }
+.logout-mini-btn:hover { background: #ffe4e6; color: #fb7185; }
+
+
+/* ==================== THẺ CÂU HỎI (DÙNG CHUNG SOẠN ĐỀ & SOẠN CH) ==================== */
+.question-card {
+  background: white;
+  border: 1px solid #e0f2fe;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,76,109,0.05);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.question-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,181,226,0.15);
+  border-color: #00b5e2;
+}
+
+/* Header & Meta Tags của thẻ */
+.meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-right: 60px; /* Chừa không gian cho số thứ tự ở góc phải */
+}
+.meta-tag {
+  background: #f0f9ff;
+  color: #004c6d;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Cụm Số thứ tự & Nút tương tác góc phải */
+.card-number {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: #00b5e2;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,181,226,0.3);
+  z-index: 10;
+}
+.select-icon {
+  position: absolute;
+  top: 26px;      /* Đẩy lên ngang hàng với số thứ tự */
+  right: 70px;    /* Dịch sang trái một chút để đứng cạnh số thứ tự */
+  font-size: 28px;
+  cursor: pointer;
+  transition: 0.2s;
+  z-index: 10;
+}
+.add-icon { color: #00b5e2; }
+.add-icon:hover { color: #004c6d; transform: scale(1.1); }
+.remove-icon { color: #fb7185; }
+.remove-icon:hover { color: #e11d48; transform: scale(1.1); }
+
+/* Nội dung câu hỏi */
+.question-text {
+  font-size: 16px;
+  line-height: 1.7;
+  font-weight: 600;
+  color: #004c6d;
+}
+
+/* Các phương án A, B, C, D */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.options div {
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e0f2fe;
+  font-size: 15px;
+  color: #334155;
+}
+.options div strong {
+  color: #00b5e2;
+  margin-right: 4px;
+}
+
+/* Bố cục chia 2 cột khi có Hình ảnh (.split-layout) */
+.split-content {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+  margin-top: 12px;
+}
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.preview-image {
+  max-width: 250px;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e0f2fe;
+  box-shadow: 0 4px 12px rgba(0,76,109,0.05);
+  transition: transform 0.3s ease;
+  cursor: zoom-in;
+}
+.preview-image:hover {
+  transform: scale(1.05);
+  border-color: #00b5e2;
+}
+
+/* Ghi chú và Từ khóa phụ */
+.extra-info {
+  font-size: 13px;
+  color: #64748b;
+  background: #f0f9ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+
+/* =======================================================
+   CHỐNG CO RÚT THẺ CÂU HỎI (BẢO TOÀN CHIỀU CAO)
+======================================================= */
+.preview-card, .question-card {
+    flex-shrink: 0 !important;        /* Cấm tuyệt đối việc tự động ép lùn thẻ */
+    min-height: max-content !important; /* Chiều cao tối thiểu phải bằng đúng nội dung bên trong */
+    height: auto !important;          /* Chiều cao tự động dãn theo chữ/hình */
+    margin-bottom: 30px !important;
+}
+
+.preview-card:last-child {
+    margin-bottom: 0 !important;
+}
+/* Đảm bảo thanh cuộn hoạt động tốt trên khung chứa */
+.cards-wrapper, .preview-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    overflow-y: auto !important;
+}
+
+
+/* =======================================================
+   STYLE TIÊU ĐỀ CÂU HỎI RÚT GỌN (MỚI)
+======================================================= */
+.meta-header {
+    margin-bottom: 16px;
+    padding-right: 70px; /* Chừa chỗ cho nút Số thứ tự / Icon góc phải */
+}
+.meta-line-1 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f59e0b; /* Màu hổ phách Amber */
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+.meta-line-2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #00b5e2; /* Màu xanh Aqua */
+    line-height: 1.5;
+}

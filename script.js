@@ -227,7 +227,7 @@ function renderGlobalHeaderCU() {
         <div class="flex flex-col leading-none hidden sm:flex">
           <span class="text-[#004c6d] font-black text-lg uppercase">Smart<span class="text-[#00b5e2]">School</span></span>
           <span class="text-[10px] text-slate-400 font-bold mt-1">
-            <span id="dispMaDe" class="text-[#f59e0b]">VER 2.0</span> • <span id="dispMon">2026</span>
+            <span id="dispMaDe" class="text-[#f59e0b]">VER 3.0</span> • <span id="dispMon">2026</span>
           </span>
         </div>
       </div>
@@ -736,4 +736,5 @@ function shuffleArrayShared(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+
 }

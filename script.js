@@ -1,7 +1,7 @@
 let questions = [];
 
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycby4CPo-w2vyF0i10v_6a_jwh_9UdVH7ddx8bAihCR_LulIG2S6R2Pdzxs_ajVjQyiT9/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbw88hTft9rqkGAKNHGsl5faB99bN5An82TOwrQ7OsFXFucwPCPgjkw6EkISZOgFjcjv/exec";
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================
@@ -193,77 +193,6 @@ function updateHeaderUI() {
 
 document.addEventListener('DOMContentLoaded', updateHeaderUI);
 
-// ==================== HEADER DÙNG CHUNG CHO MỌI TRANG ====================
-function renderGlobalHeaderCU() {
-  const headerContainer = document.getElementById('global-header');
-  if (!headerContainer) return;
-
-  // SỬA LỖI TẠI ĐÂY: Gán mặc định {} thay vì null để đảm bảo không bị đứt gãy quá trình tạo DOM
-  const currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || {}; 
-
-  const name = currentUser.FullName || currentUser.hoten || 'Khách';
-  const objectType = currentUser.Object || 'Học sinh';
-  const userId = currentUser.UserID || '----';
-  const avatarUrl = currentUser.Avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=Guest`;
-  const permissions = currentUser.Permissions || currentUser.loai || 'Chưa phân quyền';
-  
-  let roleColorClass = "text-[#10b981]"; 
-  const permLower = permissions.toLowerCase();
-  if (permLower.includes('admin') || permLower.includes('quản trị')) { 
-      roleColorClass = "text-[#f59e0b] font-bold"; 
-  } else if (permLower.includes('giáo viên') || permLower.includes('gv')) { 
-      roleColorClass = "text-[#00b5e2] font-semibold"; 
-  }
-
-  // Vẽ giao diện Header chứa CỨNG các ID (#timer, #progress, #dispMaDe...)
-  headerContainer.innerHTML = `
-  <header class="main-header sticky top-0 z-[1000] w-full relative bg-white/85 backdrop-blur-md border-b border-[#00b5e2]/10 shadow-[0_4px_20px_rgba(0,76,109,0.03)]">
-    <div class="header-inner mx-auto px-4 md:px-6 flex items-center justify-between w-full h-[72px]">
-      
-      <div class="flex items-center gap-3 cursor-pointer group" onclick="chuyenTrang('index')">
-        <div class="bg-[#00b5e2] rounded-xl p-2 shadow-lg group-hover:scale-105 transition-transform">
-          <i class="fas fa-graduation-cap text-white text-xl"></i>
-        </div>
-        <div class="flex flex-col leading-none hidden sm:flex">
-          <span class="text-[#004c6d] font-black text-lg uppercase">Smart<span class="text-[#00b5e2]">School</span></span>
-          <span class="text-[10px] text-slate-400 font-bold mt-1">
-            <span id="dispMaDe" class="text-[#f59e0b]">VER 3.0</span> • <span id="dispMon">2026</span>
-          </span>
-        </div>
-      </div>
-
-      <div id="userHeader" class="flex items-center gap-4">
-        
-        <div class="timer" id="timer" style="display: none; justify-content: center; align-items: center; background: #fff; color: #fb7185; padding: 6px 16px; border-radius: 50px; font-size: 1.05rem; font-weight: 800; box-shadow: 0 4px 12px rgba(251,113,133,0.15); border: 1px solid #ffe4e6; min-width: 100px; gap: 8px;">
-          <i class="far fa-clock text-lg"></i> <span id="timeDisplay">00:00</span>
-        </div>
-
-        <div class="user-profile-card flex items-center pl-4 pr-1.5 py-1.5 rounded-2xl border border-[#e0f2fe] bg-white shadow-sm hover:shadow-md transition-all cursor-pointer">
-          <div class="text-right mr-3 hidden sm:block">
-            <div id="dispTen" class="text-sm font-bold text-slate-800 leading-tight">${name}</div>
-            <div class="flex items-center justify-end gap-2 mt-0.5">
-              <span id="header-object" class="text-[10px] font-bold text-[#00b5e2]">${objectType}</span>
-              <span id="header-perm" class="role-badge ${permLower.includes('admin') ? 'admin-role' : (permLower.includes('giáo viên') || permLower.includes('gv')) ? 'teacher-role' : 'guest'}">${permissions}</span>
-              <span id="dispID" class="text-[10px] text-slate-400 font-mono">ID: ${userId}</span>
-            </div>
-          </div>
-          <div class="relative avatar-wrapper">
-            <img id="userAvatar" src="${avatarUrl}" class="user-avatar" alt="Avatar">
-            <div class="status-dot online"></div>
-          </div>
-          <button onclick="dangXuat()" class="logout-mini-btn ml-2" title="Đăng xuất">
-            <i class="fas fa-power-off"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="absolute bottom-0 left-0 w-full h-[4px] bg-transparent">
-      <div id="progress" class="h-full w-0 bg-gradient-to-r from-[#00b5e2] to-[#0ea5e9] transition-all duration-500 rounded-r-full"></div>
-    </div>
-  </header>
-  `;
-}
 
 // ==================== HEADER DÙNG CHUNG CHO MỌI TRANG ====================
 function renderGlobalHeader() {
@@ -392,6 +321,9 @@ function renderGlobalHeader() {
   </header>
   `;
 }
+
+
+
 
 
 // BẮT BUỘC GỌI NGAY lập tức để vẽ sẵn DOM

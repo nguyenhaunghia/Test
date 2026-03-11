@@ -7,6 +7,7 @@ function toggleSubMenu(element) {
   if(arrow) arrow.classList.toggle('rotate');
 }
 
+
 // --- HÀM TẢI KHUNG CHỨC NĂNG DỰA TRÊN QUYỀN VÀ OBJECT ---
 function loadFeatures() {
   const featureGrid = document.getElementById('featureGrid');
@@ -19,7 +20,8 @@ function loadFeatures() {
   const isGV = obj.includes('giáo viên') || obj.includes('gv') || role.includes('admin') || role.includes('giáo viên');
   const isStudent = currentUser && !isGV; // Thêm cờ nhận diện Học sinh đã đăng nhập
 
-  const actionNganHangCH = isGV ? "chuyenTrang('soanch')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionSoanCH = isGV ? "chuyenTrang('soanch')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionQuanLyCH = isGV ? "chuyenTrang('quanlych')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTN = isGV ? "chuyenTrang('soandeTN')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTL = isGV ? "chuyenTrang('soandeTL')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGB = isGV ? "chuyenTrang('gbai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
@@ -47,7 +49,18 @@ function loadFeatures() {
   col2.innerHTML = `
     <h2 class="text-xl font-bold mb-4 flex items-center"><i class="fas fa-chalkboard-teacher mr-3 text-blue-300"></i>${gvTitle}</h2>
     <ul class="space-y-2">
-      <li class="menu-item flex items-center cursor-pointer" onclick="${actionNganHangCH}"><i class="fas fa-database mr-3 text-blue-300"></i>Ngân hàng câu hỏi</li>
+      
+      <li>
+        <div class="menu-item flex items-center justify-between cursor-pointer" onclick="toggleSubMenu(this)">
+          <div class="flex items-center"><i class="fas fa-database mr-3 text-blue-300"></i>Ngân hàng câu hỏi</div>
+          <i class="fas fa-chevron-right text-xs rotate-icon opacity-70"></i>
+        </div>
+        <div class="submenu-container space-y-2">
+           <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionSoanCH}"><i class="fas fa-plus-circle mr-3 text-blue-200 text-sm"></i><span class="text-sm">Soạn mới câu hỏi</span></div>
+           <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionQuanLyCH}"><i class="fas fa-tasks mr-3 text-blue-200 text-sm"></i><span class="text-sm">Quản lý câu hỏi</span></div>
+        </div>
+      </li>
+      
       <li>
         <div class="menu-item flex items-center justify-between cursor-pointer" onclick="toggleSubMenu(this)">
           <div class="flex items-center"><i class="fas fa-folder-open mr-3 text-blue-300"></i>Ngân hàng đề</div>

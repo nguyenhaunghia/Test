@@ -147,7 +147,6 @@ async function loadChude() {
     if (res && res.success && res.data) { 
       res.data.forEach(item => sel.add(new Option(item.TopicName, item.TopicID))); 
     }
-    // Gỡ bỏ lệnh filter() tự động ở đây
   } catch(e) { sel.innerHTML = '<option value="">Lỗi tải CĐ</option>'; }
 }
 
@@ -167,7 +166,7 @@ function refreshFilters() {
     renderCurrentPage();
     updateNav();
     updatePagination();
-    clearForm();
+    clearForm(); // Gọi clearForm (bây giờ không bị reset list box nữa)
     
     loadMon(); // Load lại từ gốc
     showSuccessToast('Đã làm mới bộ lọc và dọn dẹp form.');
@@ -221,7 +220,7 @@ async function filter(){
   } catch(e) {
     icon.innerHTML=''; showErrorToast('Lỗi mạng'); navDisplay.textContent='Lỗi lọc'; setTimeout(()=>updateNav(),3000);
   } finally {
-      if (btnFilter) { btnFilter.disabled = false; btnFilter.innerHTML = '<i class="fas fa-filter"></i> Lọc dữ liệu'; }
+      if (btnFilter) { btnFilter.disabled = false; btnFilter.innerHTML = '<i class="fas fa-filter text-[13px]"></i> <span class="text-[13px]">Lọc</span>'; }
   }
 }
 
@@ -285,7 +284,17 @@ async function loadQ(id){
   } catch(e) { icon.innerHTML=''; }
 }
 
-function clearForm(){ f.reset(); currentImageId=''; currentQuestionId=''; isCopyMode=false; updateUploadButton(); document.querySelectorAll('textarea').forEach(autoResize); }
+// UPDATE: Giữ nguyên Select Box khi bấm thêm mới, chỉ xóa ô nhập Text
+function clearForm(){ 
+  ['QuestionLabel', 'A', 'B', 'C', 'D', 'Note', 'Keywords'].forEach(name => {
+      if (f && f[name]) { f[name].value = ''; }
+  });
+  currentImageId=''; 
+  currentQuestionId=''; 
+  isCopyMode=false; 
+  updateUploadButton(); 
+  document.querySelectorAll('textarea').forEach(autoResize); 
+}
 
 function isFormValid() {
   const f = document.getElementById('f');
@@ -403,14 +412,24 @@ function updateUploadButton(){
 // ==================== CÁC HÀM UI PHỤ TRỢ ====================
 function updateSaveStatus() { updateNav(); }
 
+
+
+// UPDATE: Hiện nút thêm mới (newBtn) khi idx === -1 và KHÓA NÚT LỌC KHI ĐANG EDIT/ADD
 function updateNav() {
   const newBtn=document.getElementById('newBtn'), copyBtn=document.getElementById('copyBtn'), editBtn=document.getElementById('editBtn'), delBtn=document.getElementById('delBtn'), prev=document.getElementById('prevBtn'), next=document.getElementById('nextBtn');
   const saveBtn = document.getElementById('saveBtn'); 
+  const btnFilter = document.getElementById('btnFilter'); // Lấy phần tử nút Lọc
   
-  let baseText = (idx === -1) ? (isCopyMode ? 'Bản sao' : 'Câu hỏi mới') : (edit ? 'Đang sửa' : `${idx + 1}/${ids.length}`);
+  let baseText = '0/0';
+  if (edit) {
+      baseText = (idx === -1) ? (isCopyMode ? 'Bản sao' : 'Câu hỏi mới') : 'Đang sửa';
+  } else {
+      baseText = (idx !== -1) ? `${idx + 1}/${ids.length}` : (ids.length > 0 ? `0/${ids.length}` : 'Chưa có câu');
+  }
+  
   const validMsg = isFormValid();
   
-  if (validMsg && (idx === -1 || edit)) { 
+  if (validMsg && edit) { 
     navDisplay.textContent = validMsg; 
     navDisplay.classList.add('!border-red-400', '!bg-red-50', '!text-red-600', '!text-[12px]');
     navDisplay.classList.remove('!border-blue-200', '!bg-blue-50/50', '!text-blue-600', '!text-[15px]');
@@ -430,17 +449,43 @@ function updateNav() {
     }
   }
   
-  if(idx === -1 || edit){
-    newBtn.style.display='none'; copyBtn.style.display='none'; editBtn.style.display='none'; 
+  if(edit){
+    newBtn.style.display='none'; copyBtn.style.display='none'; editBtn.style.display='none'; delBtn.style.display='none';
     if (saveBtn) saveBtn.style.display='flex'; 
-    delBtn.style.display='none'; 
     prev.style.display='none'; next.style.display='none';
-  } else {
-    newBtn.style.display='flex'; copyBtn.style.display='flex'; editBtn.style.display='flex'; 
+
+    // ĐANG Ở CHẾ ĐỘ THÊM/SỬA -> KHÓA NÚT LỌC VÀ LÀM MỜ
+    if (btnFilter) {
+        btnFilter.disabled = true;
+        btnFilter.classList.add('opacity-50', 'cursor-not-allowed');
+        btnFilter.classList.remove('hover:shadow-md');
+    }
+  } 
+  else if (idx === -1) {
+    // KHI VỪA TẢI TRANG HOẶC KHÔNG CHỌN CÂU NÀO: Hiện nút Thêm mới
+    newBtn.style.display='flex'; copyBtn.style.display='none'; editBtn.style.display='none'; delBtn.style.display='none';
     if (saveBtn) saveBtn.style.display='none'; 
-    delBtn.style.display='flex'; 
+    prev.style.display='none'; next.style.display='none';
+
+    // MỞ KHÓA NÚT LỌC
+    if (btnFilter) {
+        btnFilter.disabled = false;
+        btnFilter.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnFilter.classList.add('hover:shadow-md');
+    }
+  }
+  else {
+    newBtn.style.display='flex'; copyBtn.style.display='flex'; editBtn.style.display='flex'; delBtn.style.display='flex';
+    if (saveBtn) saveBtn.style.display='none'; 
     prev.style.display = idx === 0 ? 'none' : 'flex'; 
     next.style.display = idx === ids.length - 1 ? 'none' : 'flex';
+
+    // MỞ KHÓA NÚT LỌC
+    if (btnFilter) {
+        btnFilter.disabled = false;
+        btnFilter.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnFilter.classList.add('hover:shadow-md');
+    }
   }
   
   document.querySelectorAll('#f textarea').forEach(el => el.disabled = !edit); 
@@ -449,8 +494,12 @@ function updateNav() {
   document.querySelectorAll('#f select, #f input[name="searchKeyword"]').forEach(el => el.disabled = false);
 }
 
+
 function nav(dir){ if(dir===-2&&idx>0) idx--; else if(dir===2&&idx<ids.length-1) idx++; if(idx>=0&&idx<ids.length){ const page=Math.floor(idx/ITEMS_PER_PAGE)+1; if(page!==currentPage){ currentPage=page; loadPage(currentPage); updatePagination(); } loadQ(ids[idx]); } }
-function newMode(){ currentImageId=''; currentQuestionId=''; isCopyMode=false; idx=-1; edit=true; filterMode=false; clearForm(); f.SubjectID.value=''; f.BlockID.value=''; f.TypeID.value=''; f.LevelID.value=''; f.TopicID.value=''; updateNav(); }
+
+// UPDATE: Giữ nguyên form lọc
+function newMode(){ currentImageId=''; currentQuestionId=''; isCopyMode=false; idx=-1; edit=true; filterMode=false; clearForm(); updateNav(); }
+
 function copyMode(){ if(idx===-1) return; isCopyMode=true; currentQuestionId=''; idx=-1; edit=true; filterMode=false; updateNav(); }
 function editMode(){ if(idx===-1) return; currentQuestionId=ids[idx]; isCopyMode=false; edit=true; filterMode=false; updateNav(); }
 

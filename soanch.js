@@ -11,7 +11,7 @@ currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 // Khai báo biến DOM (Nhưng chưa gán giá trị để tránh lỗi load)
 let f, navDisplay, icon, previewCards, pagination, imageUpload, uploadButton, uploadIcon, saveBtn;
 
-// ==================== KHỞI TẠO HỆ THỐNG (CHỐNG TREO) ====================
+// ==================== KHỞI TẠO HỆ THỐNG ====================
 async function initApp() {
   try {
     setTimeout(() => { 
@@ -77,9 +77,6 @@ function showSuccessToast(message, title = 'Thành công') { createToast('succes
 function showErrorToast(message, title = 'Lỗi') { createToast('error', title, message, 6000); }
 function showWarningToast(message, title = 'Cảnh báo') { createToast('warning', title, message, 5000); }
 function showInfoToast(message, title = 'Thông tin') { createToast('info', title, message, 4000); }
-
-function debounce(func,delay){let t;return()=>{clearTimeout(t);t=setTimeout(func,delay);}}
-const debouncedFilter=debounce(filter,400);
 
 // ==================== LOAD SELECTBOX (API) ====================
 async function loadMon() {
@@ -150,11 +147,33 @@ async function loadChude() {
     if (res && res.success && res.data) { 
       res.data.forEach(item => sel.add(new Option(item.TopicName, item.TopicID))); 
     }
-    filter();
+    // Gỡ bỏ lệnh filter() tự động ở đây
   } catch(e) { sel.innerHTML = '<option value="">Lỗi tải CĐ</option>'; }
 }
 
-// ==================== HÀM GET FILTERS ĐỒNG BỘ BACKEND ====================
+// ==================== LÀM MỚI BỘ LỌC ====================
+function refreshFilters() {
+    if(f.SubjectID) f.SubjectID.value = '';
+    if(f.BlockID) { f.BlockID.innerHTML = '<option value="">Tất cả</option>'; f.BlockID.value = ''; }
+    if(f.TopicID) { f.TopicID.innerHTML = '<option value="">Tất cả</option>'; f.TopicID.value = ''; }
+    if(f.TypeID) f.TypeID.value = '';
+    if(f.LevelID) f.LevelID.value = '';
+    if(f.searchKeyword) f.searchKeyword.value = '';
+    
+    ids = [];
+    filteredQuestions = [];
+    currentPage = 1;
+    idx = -1;
+    renderCurrentPage();
+    updateNav();
+    updatePagination();
+    clearForm();
+    
+    loadMon(); // Load lại từ gốc
+    showSuccessToast('Đã làm mới bộ lọc và dọn dẹp form.');
+}
+
+// ==================== HÀM GET FILTERS ====================
 function getFilters() {
   const getVal = (nameOrId) => {
     const el = document.querySelector(`select[name="${nameOrId}"]`) || document.getElementById(nameOrId);
@@ -179,17 +198,30 @@ async function filter(){
   const filters = getFilters(); 
 
   navDisplay.textContent='Đang lọc...'; icon.innerHTML='<i class="fas fa-spinner loading"></i>';
+  const btnFilter = document.getElementById('btnFilter');
+  if (btnFilter) { btnFilter.disabled = true; btnFilter.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lọc...'; }
+
   try {
     const res = await callAPI('getFilteredIds', filters);
     icon.innerHTML='';
     if(res && res.success) {
       ids = res.data || []; filteredQuestions=[]; currentPage=1; idx=ids.length>0 ? 0 : -1;
-      if(ids.length > 0) { loadQ(ids[0]); loadPage(1); }
-      else { renderCurrentPage(); navDisplay.textContent='Không có kết quả'; }
+      if(ids.length > 0) { 
+          loadQ(ids[0]); 
+          loadPage(1); 
+          showSuccessToast(`Tìm thấy ${ids.length} câu hỏi`);
+      }
+      else { 
+          renderCurrentPage(); 
+          navDisplay.textContent='Không có kết quả'; 
+          clearForm();
+      }
       updateNav(); updatePagination();
     }
   } catch(e) {
     icon.innerHTML=''; showErrorToast('Lỗi mạng'); navDisplay.textContent='Lỗi lọc'; setTimeout(()=>updateNav(),3000);
+  } finally {
+      if (btnFilter) { btnFilter.disabled = false; btnFilter.innerHTML = '<i class="fas fa-filter"></i> Lọc dữ liệu'; }
   }
 }
 
@@ -234,7 +266,6 @@ async function loadPage(page){
     } catch(e) { console.error("Lỗi tải câu hỏi:", e); }
   }
 }
-// Đã xóa hàm generateQuestionHTML và applySplitLayout rườm rà ở đây
 
 // ==================== LOAD & SAVE CÂU HỎI ====================
 async function loadQ(id){
@@ -451,7 +482,7 @@ function goToPage(page) {
   if (rightPanelContent) { rightPanelContent.scrollTo({ top: 0, behavior: 'smooth' }); }
 }
 
-function renderCurrentPage() { previewCards.innerHTML = '<em>Không có câu hỏi nào</em>'; }
+function renderCurrentPage() { previewCards.innerHTML = '<em class="text-[#004c6d] opacity-60 text-center block w-full">Không có câu hỏi nào</em>'; }
 function autoResize(t){t.style.height='auto';t.style.height=t.scrollHeight+'px';}
 
 // ==================== XỬ LÝ KHUNG PREVIEW ẢNH TRONG FORM ====================

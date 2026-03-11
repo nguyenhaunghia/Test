@@ -218,3 +218,35 @@
     color: #00b5e2; /* Màu xanh Aqua */
     line-height: 1.5;
 }
+
+
+
+
+
+/* =========================================================
+   CSS DÙNG CHUNG CHO TRANG SOẠN CÂU HỎI & QUẢN LÝ CÂU HỎI
+========================================================= */
+.left-panel, .right-panel { display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.95); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,76,109,0.08); overflow: hidden; transition: all .4s cubic-bezier(.25,.8,.25,1); height: 100%; border: 1px solid rgba(0, 181, 226, 0.1); backdrop-filter: blur(10px); }
+.left-panel:hover, .right-panel:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,181,226,0.12); border-color: rgba(0, 181, 226, 0.2); }
+.panel-content { padding: 24px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: thin; scrollbar-color: #00b5e2 #f0f9ff;}
+.right-panel .panel-content { padding: 24px 8px 24px 24px; }
+
+#newBtn{color:#10b981;} #newBtn:hover:not(:disabled){background:#ecfdf5;color:#059669;}
+#editBtn{color:#00b5e2;} #editBtn:hover:not(:disabled){background:#f0f9ff;color:#004c6d;}
+#saveBtn{color:#004c6d;} #saveBtn:hover:not(:disabled){background:#e0f2fe;color:#00334e;}
+#delBtn{color:#fb7185;} #delBtn:hover:not(:disabled){background:#fff1f2;color:#e11d48;}
+#copyBtn{color:#f59e0b;} #copyBtn:hover:not(:disabled){background:#fffbeb;color:#d97706;}
+
+.loading { animation: spin 1s linear infinite; }
+@keyframes spin { 0% {transform: rotate(0deg)} 100% {transform: rotate(360deg)} }
+
+.preview-cards { display: flex; flex-direction: column; padding-right: 12px; }
+.pagination { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:24px; padding-bottom:10px; flex-shrink:0; }
+.pagination button { padding:10px 16px; border:1px solid #e0f2fe; background:white; border-radius:10px; cursor:pointer; color:#64748b; transition:all .2s ease; box-shadow:0 2px 4px rgba(0,76,109,0.02); }
+.pagination button i { font-size: 16px; }
+.pagination button:hover:not(:disabled) { background:#f0f9ff; color:#00b5e2; border-color:#00b5e2; transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,181,226,0.15); }
+.pagination button:disabled { opacity:0.4; cursor:not-allowed; background:#f8fafc; }
+.pagination .page-info { font-weight:600; color:#00b5e2; font-size:15px; margin: 0 10px; background: #f0f9ff; padding: 8px 16px; border-radius: 20px; }
+
+#f textarea { text-align: justify; }
+/* ========================================================= */

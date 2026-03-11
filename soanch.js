@@ -225,7 +225,7 @@ async function filter(){
 }
 
 // TÍCH HỢP HÀM RÚT GỌN TỪ SCRIPT.JS
-async function loadPage(page){
+async function loadPagecu(page){
   const start = (page-1)*ITEMS_PER_PAGE;
   const pageIds = ids.slice(start, start+ITEMS_PER_PAGE);
   previewCards.innerHTML = '';
@@ -265,6 +265,73 @@ async function loadPage(page){
     } catch(e) { console.error("Lỗi tải câu hỏi:", e); }
   }
 }
+
+async function loadPage(page){
+  const start = (page-1)*ITEMS_PER_PAGE;
+  const pageIds = ids.slice(start, start+ITEMS_PER_PAGE);
+  previewCards.innerHTML = '';
+  
+  if(pageIds.length === 0) { renderCurrentPage(); return; }
+
+  for (let localIndex = 0; localIndex < pageIds.length; localIndex++) {
+    try {
+      const res = await callAPI('loadQuestion', { QuestionID: pageIds[localIndex] });
+      if(res && res.success) {
+        const data = res.data;
+        filteredQuestions[start + localIndex] = data;
+        
+        // GỌI HÀM VẼ GIAO DIỆN CHUNG TỪ SCRIPT.JS
+        const card = buildSharedQuestionCard(data, {
+            id: pageIds[localIndex],
+            order: start + localIndex + 1,
+            showToggleIcon: false 
+        });
+        
+        // =========================================================================
+        // KIỂM TRA: NẾU ĐANG Ở TRANG QUẢN LÝ THÌ BỔ SUNG DANH SÁCH BÀI KIỂM TRA
+        // =========================================================================
+        if (typeof IS_MANAGE_MODE !== 'undefined' && IS_MANAGE_MODE) {
+            const testNames = data.Tests || data.MaDeList || []; // Chờ API trả về mảng này
+            
+            let testListHtml = '';
+            if (testNames.length > 0) {
+                testListHtml = testNames.map(t => `<span class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-[#bae6fd] rounded-lg text-[12px] font-semibold text-[#0284c7] shadow-sm"><i class="fas fa-file-alt text-[#38bdf8]"></i> ${t}</span>`).join('');
+            } else {
+                testListHtml = `<span class="text-[12px] text-gray-400 italic bg-[#f8fafc] px-3 py-1 rounded-lg border border-[#f1f5f9]">Chưa sử dụng trong nhiệm vụ / đề thi nào.</span>`;
+            }
+
+            const testsContainer = document.createElement('div');
+            testsContainer.className = 'mt-3 pt-3 border-t border-dashed border-[#e0f2fe]';
+            testsContainer.innerHTML = `
+                <div class="text-[12px] font-bold text-[#004c6d] mb-2 uppercase tracking-wide"><i class="fas fa-link mr-1"></i> Đang sử dụng tại:</div>
+                <div class="flex flex-wrap gap-2">
+                  ${testListHtml}
+                </div>
+            `;
+            card.appendChild(testsContainer);
+        }
+        // =========================================================================
+
+        card.onclick = () => {
+            idx = start + localIndex; 
+            loadQ(pageIds[localIndex]); 
+            updateNav();
+        };
+
+        previewCards.appendChild(card);
+
+        if(typeof renderMathInElement !== 'undefined') {
+          renderMathInElement(card, {
+              delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}], 
+              throwOnError: false
+          });
+        }
+      }
+    } catch(e) { console.error("Lỗi tải câu hỏi:", e); }
+  }
+}
+
+
 
 // ==================== LOAD & SAVE CÂU HỎI ====================
 async function loadQ(id){

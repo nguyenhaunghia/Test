@@ -80,12 +80,36 @@
 
   <div class="card-glass overflow-hidden">
     <div class="flex overflow-x-auto border-b border-[#e0f2fe] hide-scrollbar bg-[#f0f9ff]/50">
-      <div class="tab-btn active" onclick="switchTab('tab-auth', this)"><i class="fas fa-shield-alt mr-2"></i>1. Trạng thái</div>
+      <div class="tab-btn active" onclick="switchTab('tab-tonghop', this)"><i class="fas fa-chart-line mr-2"></i>Tổng hợp</div>
+      <div class="tab-btn" onclick="switchTab('tab-auth', this)"><i class="fas fa-shield-alt mr-2"></i>1. Trạng thái</div>
       <div class="tab-btn" onclick="switchTab('tab-tn', this)"><i class="fas fa-check-double mr-2"></i>2. Trắc nghiệm</div>
       <div class="tab-btn" onclick="switchTab('tab-tl', this)"><i class="fas fa-file-signature mr-2"></i>3. Tự luận</div>
     </div>
 
-    <div id="tab-auth" class="tab-content p-6 block">
+    <div id="tab-tonghop" class="tab-content p-6 block">
+      <div class="mb-4 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-[#004c6d]">Bảng tổng hợp số liệu giám sát</h3>
+      </div>
+      <div class="table-container">
+        <table class="w-full text-sm text-left text-slate-600 relative">
+          <thead class="text-xs uppercase sticky top-0 z-10 shadow-sm">
+            <tr>
+              <th class="px-4 py-3 w-12 text-center">STT</th>
+              <th class="px-4 py-3">Mã HS</th>
+              <th class="px-4 py-3">Họ và Tên</th>
+              <th class="px-4 py-3 text-center">Trạng thái Online</th>
+              <th class="px-4 py-3 text-center">Trắc nghiệm</th>
+              <th class="px-4 py-3 text-center">Tự luận</th>
+            </tr>
+          </thead>
+          <tbody id="tonghop-tbody" class="divide-y divide-slate-100">
+            <tr><td colspan="6" class="text-center py-8 text-slate-400 font-semibold">Vui lòng chọn Lớp và Lọc dữ liệu</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-auth" class="tab-content p-6 hidden">
       <div class="mb-4 flex justify-between items-center">
         <h3 class="text-lg font-bold text-[#004c6d]">Bảo mật tài khoản</h3>
         <span class="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-lg font-bold hidden sm:inline-flex items-center gap-1.5"><i class="fas fa-exclamation-triangle"></i> Login -> Logout</span>

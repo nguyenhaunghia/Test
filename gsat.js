@@ -94,9 +94,16 @@ async function fetchDataGiamSat() {
 
     const classLogs = allLogs.filter(log => studentIDs.includes(String(log.UserID).trim().toUpperCase()));
 
+    // =========================================================================
+    // ĐỔ DỮ LIỆU RA CÁC TAB 
+    // =========================================================================
     renderTabAuth(classStudents, classLogs);
     renderTabTests(classStudents, classLogs, 'SUBMIT_TN', 'tn-tbody', 'tn', testMap);
     renderTabTests(classStudents, classLogs, 'SUBMIT_TH', 'tl-tbody', 'tl', testMap);
+    
+    // TAB MỚI: TỔNG HỢP SỐ LIỆU
+    renderTabTongHop(classStudents, classLogs);
+    // =========================================================================
     
     toggleLoading(false);
     showToast(`Đã tải xong dữ liệu giám sát ngày ${dateStr}`, "success");
@@ -206,6 +213,62 @@ function renderTabTests(students, logs, eventType, tbodyId, tabPrefix, testMap) 
         }
 
         tbody.innerHTML += mainRow + detailRow;
+    });
+}
+
+// =========================================================================
+// HÀM MỚI: RENDER TAB TỔNG HỢP SỐ LIỆU
+// =========================================================================
+function renderTabTongHop(students, logs) {
+    const tbody = document.getElementById('tonghop-tbody');
+    if (!tbody) return; // Bảo vệ an toàn
+    
+    tbody.innerHTML = '';
+
+    if (students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-medium">Không có học sinh nào.</td></tr>`;
+        return;
+    }
+
+    students.forEach((st, index) => {
+        // Lọc log của riêng học sinh này
+        const myLogs = logs.filter(l => String(l.UserID).trim().toUpperCase() === String(st.UserID).trim().toUpperCase());
+        
+        // 1. Phân tích trạng thái đăng nhập
+        const logins = myLogs.filter(l => l.Event === 'LOGIN').length;
+        const logouts = myLogs.filter(l => l.Event === 'LOGOUT').length;
+        
+        let statusHtml = `<span class="text-[#10b981] font-bold"><i class="fas fa-check-circle mr-1"></i> An toàn</span>`;
+        if (logins > logouts) {
+            statusHtml = `<span class="text-[#e11d48] font-bold animate-pulse"><i class="fas fa-exclamation-triangle mr-1"></i> Đang Online</span>`;
+        } else if (logins === 0 && logouts === 0) {
+            statusHtml = `<span class="text-slate-400 font-bold"><i class="fas fa-minus-circle mr-1"></i> Chưa HĐ</span>`;
+        }
+
+        // 2. Đếm số lượng bài Trắc nghiệm và Tự luận
+        const tnTotal = myLogs.filter(l => l.Event === 'SUBMIT_TN').length;
+        const tlTotal = myLogs.filter(l => l.Event === 'SUBMIT_TH').length;
+
+        // Trang trí badge số liệu: Có nộp thì hiện viền màu, không nộp hiện dấu gạch ngang
+        const tnBadge = tnTotal > 0 
+            ? `<span class="bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7] px-2.5 py-1 rounded-md font-bold shadow-sm">${tnTotal} bài</span>` 
+            : `<span class="text-slate-300">-</span>`;
+            
+        const tlBadge = tlTotal > 0 
+            ? `<span class="bg-[#fce7f3] border border-[#fbcfe8] text-[#db2777] px-2.5 py-1 rounded-md font-bold shadow-sm">${tlTotal} bài</span>` 
+            : `<span class="text-slate-300">-</span>`;
+
+        // 3. Đổ dữ liệu ra dòng
+        tbody.innerHTML += `
+            <tr class="hover:bg-[#f0f9ff] transition-colors border-b border-slate-100/50">
+                <td class="px-4 py-3 text-center font-bold text-slate-400">${index + 1}</td>
+                <td class="px-4 py-3 font-mono font-bold text-[#004c6d]">${st.UserID}</td>
+                <td class="px-4 py-3 font-semibold text-slate-700">${st.FullName}</td>
+                <td class="px-4 py-3 text-center">${statusHtml}</td>
+                <td class="px-4 py-3 text-center">${tnBadge}</td>
+                <td class="px-4 py-3 text-center">${tlBadge}</td>
+            </tr>
+        `;
     });
 }
 

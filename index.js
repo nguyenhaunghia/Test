@@ -23,7 +23,7 @@ function loadFeatures() {
   const actionSoanCH = isGV ? "chuyenTrang('soanch')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionQuanLyCH = isGV ? "chuyenTrang('quanlych')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTN = isGV ? "chuyenTrang('soandeTN')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
-  const actionTL = isGV ? "chuyenTrang('soandeTL')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionThH = isGV ? "chuyenTrang('soandeTH')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGB = isGV ? "chuyenTrang('gbai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTH = isGV ? "chuyenTrang('thkq')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGS = isGV ? "chuyenTrang('gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
@@ -68,7 +68,7 @@ function loadFeatures() {
         </div>
         <div class="submenu-container space-y-2">
            <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionTN}"><i class="fas fa-list-check mr-3 text-blue-200 text-sm"></i><span class="text-sm">Trắc nghiệm</span></div>
-           <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionTL}"><i class="fas fa-pen-nib mr-3 text-blue-200 text-sm"></i><span class="text-sm">Tự luận</span></div>
+           <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionThH}"><i class="fas fa-pen-nib mr-3 text-blue-200 text-sm"></i><span class="text-sm">Thực hành</span></div>
         </div>
       </li>
       <li>

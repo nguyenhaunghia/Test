@@ -1,7 +1,7 @@
 let questions = [];
 
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycbw88hTft9rqkGAKNHGsl5faB99bN5An82TOwrQ7OsFXFucwPCPgjkw6EkISZOgFjcjv/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx0NnZoYvk-Lx2AwNoHFVdvWarc76i-yB0O0ltJrtdtMQd_mYI5QSjqVqOtrYu918jo/exec";
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================
@@ -24,12 +24,13 @@ async function callAPI(action, payload = {}, silent = false) {
 function chuyenTrang(fileCode) {
   const mapRoute = {
     'login': 'login.html',
-    'loanch': 'soanch.html',
-    'soandeTL': 'soandeTL.html',
+    'soanch': 'soanch.html',
+    'quanlych': 'quanlych.html',
+    'soandeTH': 'soandeTH.html',
     'soandeTN': 'soandeTN.html',
     'hsinh': 'hsinh.html',
     'gbai': 'gbai.html',
-    'thkq': 'tonghop.html',
+    'tonghop': 'tonghop.html',
     'lbai': 'lbai.html',
     'otap': 'otap.html',
     'tke': 'tke.html',
@@ -208,19 +209,20 @@ function renderGlobalHeader() {
   const currentUrl = window.location.href.toLowerCase();
   let pageTitle = "";
   
-  if (currentUrl.includes('hsinh')) pageTitle = "NHIỆM VỤ HỌC TẬP";
-  else if (currentUrl.includes('soanch') || currentUrl.includes('loanch')) pageTitle = "NGÂN HÀNG CÂU HỎI TRẮC NGHIỆM";
-  else if (currentUrl.includes('soandetn')) pageTitle = "NGÂN HÀNG ĐỀ TRẮC NGHIỆM";
-  else if (currentUrl.includes('soandetl')) pageTitle = "NGÂN HÀNG ĐỀ TỰ LUẬN";
-  else if (currentUrl.includes('gbai')) pageTitle = "GIAO NHIỆM VỤ";
-  else if (currentUrl.includes('thkq') || currentUrl.includes('tonghop')) pageTitle = "TỔNG HỢP THỐNG KÊ";
-  else if (currentUrl.includes('gsat')) pageTitle = "GIÁM SÁT HỌC TẬP";
-  else if (currentUrl.includes('lbai')) pageTitle = "LÀM BÀI TRỰC TUYẾN";
-  else if (currentUrl.includes('ontap') || currentUrl.includes('otap')) pageTitle = "ÔN TẬP TỰ LUYỆN";
-  else if (currentUrl.includes('xhang')) pageTitle = "BẢNG XẾP HẠNG";
-  else if (currentUrl.includes('tke')) pageTitle = "THỐNG KÊ KẾT QUẢ";
-  else if (currentUrl.includes('index')) pageTitle = "HỆ THỐNG SMART SCHOOL";
-  else if (currentUrl.includes('login')) pageTitle = "ĐĂNG NHẬP HỆ THỐNG";
+  if (currentUrl.includes('hsinh')) pageTitle =           "NHIỆM VỤ HỌC TẬP";
+  else if (currentUrl.includes('soanch')) pageTitle =     "SOẠN MỚI VÀ CẬP NHẬT CÂU HỎI";
+  else if (currentUrl.includes('quanlych')) pageTitle =   "QUẢN LÝ NGÂN HÀNG CÂU HỎI";
+  else if (currentUrl.includes('soandetn')) pageTitle =   "NGÂN HÀNG ĐỀ TRẮC NGHIỆM";
+  else if (currentUrl.includes('soandeth')) pageTitle =   "NGÂN HÀNG ĐỀ THỰC HÀNH";
+  else if (currentUrl.includes('gbai')) pageTitle =       "GIAO NHIỆM VỤ HỌC TẬP";
+  else if (currentUrl.includes('tonghop')) pageTitle =    "TỔNG HỢP THỐNG KÊ SẢN PHẨM HỌC TẬP";
+  else if (currentUrl.includes('gsat')) pageTitle =       "GIÁM SÁT HỌC TẬP";
+  else if (currentUrl.includes('lbai')) pageTitle =       "LÀM BÀI TẬP";
+  else if (currentUrl.includes('ontap')) pageTitle =      "ÔN TẬP TỰ LUYỆN";
+  else if (currentUrl.includes('xhang')) pageTitle =      "BẢNG XẾP HẠNG";
+  else if (currentUrl.includes('tke')) pageTitle =        "THỐNG KÊ KẾT QUẢ";
+  else if (currentUrl.includes('index')) pageTitle =      "HỆ THỐNG SMART SCHOOL";
+  else if (currentUrl.includes('login')) pageTitle =      "ĐĂNG NHẬP HỆ THỐNG";
   else if (currentUrl.includes('new') || currentUrl.includes('register')) pageTitle = "ĐĂNG KÝ TÀI KHOẢN MỚI";
 
   // 3. XÂY DỰNG KHỐI BÊN PHẢI (USER INFO HOẶC NÚT ĐĂNG NHẬP)
@@ -234,14 +236,30 @@ function renderGlobalHeader() {
 
   let rightHeaderHTML = '';
   
+
   if (isLoggedIn) {
     // ---> CÓ ĐĂNG NHẬP: Hiển thị Profile
     const name = currentUser.FullName || currentUser.hoten || 'Khách';
     const objectType = currentUser.Object || 'Học sinh';
     const userId = currentUser.UserID || '----';
-    const avatarUrl = currentUser.Avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userId)}`;
     const permissions = currentUser.Permissions || currentUser.loai || 'Chưa phân quyền';
     
+
+
+
+
+// =========================================================================
+    // CHIÊU CUỐI: DÙNG THUMBNAIL ĐỂ VƯỢT RÀO FILE NẶNG & CẢNH BÁO VIRUS
+    // =========================================================================
+    const avatarId = (currentUser.Avatar && currentUser.Avatar.trim()) 
+                     ? currentUser.Avatar.trim() 
+                     : '1AXbn6ntnMKs9i1eGIlQhCafueuyNxrAU';
+    
+    // Ép Google tạo bản preview 200px (vừa đủ nét cho avatar mà lại siêu nhẹ)
+    // Cách này sẽ fix triệt để lỗi ảnh dung lượng lớn không hiện.
+    const avatarUrl = `https://drive.google.com/thumbnail?id=${avatarId}&sz=w200`;
+    // =========================================================================
+
     let roleColorClass = "guest"; 
     const permLower = permissions.toLowerCase();
     if (permLower.includes('admin') || permLower.includes('quản trị')) { 
@@ -275,6 +293,7 @@ function renderGlobalHeader() {
       </div>
     `;
   } else {
+  
     // ---> CHƯA ĐĂNG NHẬP: Hiển thị Nút Login
     rightHeaderHTML = `
       <div class="flex items-center gap-4">
@@ -321,10 +340,6 @@ function renderGlobalHeader() {
   </header>
   `;
 }
-
-
-
-
 
 // BẮT BUỘC GỌI NGAY lập tức để vẽ sẵn DOM
 renderGlobalHeader();

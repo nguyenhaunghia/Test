@@ -10,7 +10,7 @@ function displayMaDeListcu(list) {
   container.innerHTML = '';
   
   list.forEach(item => {
-    const isTL = String(item.maDe || '').startsWith('TL');
+    const isTH = String(item.maDe || '').startsWith('TH');
     const ngayHienThi = item.ngayTao ? new Date(item.ngayTao).toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--';
     const isEnable = (item.hieuLuc || 'Yes').toLowerCase() === 'yes';
     
@@ -33,7 +33,7 @@ function displayMaDeListcu(list) {
           <span class="text-[#00b5e2] font-bold text-[11px] uppercase tracking-wider">Môn - Khối</span>
           <span class="text-[#004c6d] font-bold text-[13px]">${item.mon} - ${item.khoi}</span>
        </div>
-       ${!isTL ? `
+       ${!isTH ? `
        <div class="flex justify-between items-center mb-2">
           <span class="text-[#00b5e2] font-bold text-[11px] uppercase tracking-wider">Số câu</span>
           <span class="text-[#004c6d] font-bold text-[13px]">${soCauDisplay}</span>
@@ -90,7 +90,7 @@ function displayMaDeList(list) {
   container.innerHTML = '';
   
   list.forEach(item => {
-    const isTL = String(item.maDe || '').startsWith('TL');
+    const isTH = String(item.maDe || '').startsWith('TH');
     const ngayHienThi = item.ngayTao ? new Date(item.ngayTao).toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'}) : '--';
     
     // Kiểm tra trạng thái hiệu lực
@@ -123,7 +123,7 @@ function displayMaDeList(list) {
           <span class="text-[#00b5e2] font-bold text-[11px] uppercase tracking-wider">Môn - Khối</span>
           <span class="text-[#004c6d] font-bold text-[13px]">${item.mon} - ${item.khoi}</span>
        </div>
-       ${!isTL ? `
+       ${!isTH ? `
        <div class="flex justify-between items-center mb-2">
           <span class="text-[#00b5e2] font-bold text-[11px] uppercase tracking-wider">Số câu</span>
           <span class="text-[#004c6d] font-bold text-[13px]">${soCauDisplay}</span>
@@ -232,7 +232,7 @@ function handleDelete(maDe) {
 function showGiaoModal(maDe) {
   currentMaDe = maDe;
   const item = fullList.find(i => i.maDe === maDe);
-  const isTL = maDe.startsWith('TL');
+  const isTH = maDe.startsWith('TH');
 
   $('#modalMaDeTitle').textContent = item ? `CODE: ${maDe} • ${item.mon} • ${item.khoi}` : maDe;
   
@@ -241,7 +241,7 @@ function showGiaoModal(maDe) {
   $('#selectedCount').textContent = 'Đã chọn: 0 học sinh';
   
   const settingFields = document.querySelectorAll('.setting-field');
-  settingFields.forEach(el => { el.style.display = isTL ? 'none' : 'block'; });
+  settingFields.forEach(el => { el.style.display = isTH ? 'none' : 'block'; });
 
   $('#giaoModal').classList.remove('hidden');
   loadHocSinhList();
@@ -369,16 +369,16 @@ function giaoNhiemVu() {
   $('#pageLoading').style.display = 'flex';
   $('#confirmBtn').disabled = true;
 
-  const isTL = currentMaDe.startsWith('TL');
+  const isTH = currentMaDe.startsWith('TH');
 
   const data = {
     maDe: currentMaDe,
     dsID: listID,
     batDau: $('#batDau').value,
     ketThuc: $('#ketThuc').value,
-    soLuot: isTL ? "" : parseInt($('#soLuot').value),
-    diemCao: isTL ? "" : parseFloat($('#diemCao').value),
-    diemTB: isTL ? "" : parseFloat($('#diemTB').value)
+    soLuot: isTH ? "" : parseInt($('#soLuot').value),
+    diemCao: isTH ? "" : parseFloat($('#diemCao').value),
+    diemTB: isTH ? "" : parseFloat($('#diemTB').value)
   };
 
   callAPI('luuNhiemVu', data)

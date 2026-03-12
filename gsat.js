@@ -96,7 +96,7 @@ async function fetchDataGiamSat() {
 
     renderTabAuth(classStudents, classLogs);
     renderTabTests(classStudents, classLogs, 'SUBMIT_TN', 'tn-tbody', 'tn', testMap);
-    renderTabTests(classStudents, classLogs, 'SUBMIT_TL', 'tl-tbody', 'tl', testMap);
+    renderTabTests(classStudents, classLogs, 'SUBMIT_TH', 'tl-tbody', 'tl', testMap);
     
     toggleLoading(false);
     showToast(`Đã tải xong dữ liệu giám sát ngày ${dateStr}`, "success");

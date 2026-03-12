@@ -129,7 +129,7 @@ function renderTable() {
             let missionsOfSubj = groupData.list;
             let subjectName = groupData.name;
 
-            // Sắp xếp: TN -> TL -> Date
+            // Sắp xếp: TN -> TH -> Date
             missionsOfSubj.sort((a, b) => {
                 const isTNa = String(a.TestID).toUpperCase().startsWith("TN") ? 0 : 1;
                 const isTNb = String(b.TestID).toUpperCase().startsWith("TN") ? 0 : 1;
@@ -154,14 +154,14 @@ function renderTable() {
                     String(r.TestID).trim() === String(m.TestID).trim()
                 );
 
-                const isTL = String(m.TestID).trim().toUpperCase().startsWith("TL");
+                const isTH = String(m.TestID).trim().toUpperCase().startsWith("TH");
                 const endDate = parseDateInput(m.End);    
                 const isExpired = now > endDate;          
 
                 let isComplete = false;
                 let displayStats = "";
 
-                if (isTL) {
+                if (isTH) {
                     const submittedFilesCount = stResults.length; 
                     isComplete = submittedFilesCount > 0;
                     
@@ -232,7 +232,7 @@ function renderTable() {
                         <div class="flex items-center flex-1 gap-3 min-w-0">
                             <span class="text-[14px] font-bold text-[#004c6d] truncate">${m.TestName}</span>
                             <span class="text-[11px] font-mono font-bold text-[#00b5e2] flex-shrink-0">
-                                <i class="fas ${isTL ? 'fa-file-alt' : 'fa-list-ol'} mr-1"></i>${m.TestID}
+                                <i class="fas ${isTH ? 'fa-file-alt' : 'fa-list-ol'} mr-1"></i>${m.TestID}
                             </span>
                         </div>
 

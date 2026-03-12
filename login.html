@@ -106,7 +106,7 @@
     /* Dải ngăn cách "Hoặc" */
     .divider {
       position: relative;
-      margin: 25px 0;
+      margin: 10px 0;
       text-align: center;
     }
     .divider::before {
@@ -116,7 +116,7 @@
       left: 0;
       width: 100%;
       height: 1px;
-      background: #e0f2fe; /* Đường line màu pastel nhạt */
+      background: #0dd4a9; /* Đường line màu pastel nhạt */
     }
     .divider span {
       position: relative;
@@ -132,7 +132,7 @@
     .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-box { background: white; padding: 32px; border-radius: 24px; width: 90%; max-width: 420px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid #e0f2fe; }
     .modal-overlay.active .modal-box { transform: scale(1); }
-    .input-group { position: relative; margin-bottom: 16px; }
+    .input-group { position: relative; margin-bottom: 5px; }
   </style>
 </head>
 <body class="antialiased">
@@ -147,10 +147,13 @@
   <div class="flex flex-col items-center justify-center min-h-screen px-4">
     <div class="login-box">
       <div class="relative inline-block mb-6">
-        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-24 h-24 rounded-full bg-[#f0f9ff] border-2 border-[#00b5e2] p-2 shadow-inner">
+        <div class="bg-[#00b5e2] w-24 h-24 rounded-2xl flex items-center justify-center shadow-[0_10px_25px_rgba(0,181,226,0.4)] transform hover:rotate-6 transition-transform duration-300">
+        <i class="fas fa-graduation-cap text-white text-5xl"></i>
+        </div>
       </div>
-      <h2 class="text-3xl font-bold text-[#004c6d] mb-1">Chào mừng bạn!</h2>
-      <p class="text-gray-500 text-sm mb-8">Hệ thống trắc nghiệm thông minh</p>
+
+      <h2 class="text-3xl font-bold text-[#004c6d] mb-1">CHÀO MỪNG BẠN !</h2>
+      <p class="text-gray-500 text-sm mb-8">Quản lý học tập thông minh</p>
       
       <div class="input-group">
         <i class="fas fa-user absolute user-icon"></i>
@@ -178,7 +181,7 @@
       <div id="googleBtn" class="flex justify-center mb-4"></div>
 
       <div class="flex justify-between items-center mt-6 text-sm">
-         <a href="#" onclick="showToast('Vui lòng liên hệ GVCN để cấp lại mật khẩu', 'warning')" class="text-gray-500 hover:text-[#00b5e2] transition font-medium">Quên mật khẩu?</a>
+         <a href="#" onclick="showToast('Vui lòng liên hệ quản trị để cấp lại mật khẩu', 'warning')" class="text-gray-500 hover:text-[#00b5e2] transition font-medium">Quên mật khẩu?</a>
       </div>
     </div>
   </div>

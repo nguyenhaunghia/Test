@@ -8,7 +8,11 @@ const ITEMS_PER_PAGE=10;
 let currentPage=1;
 currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-// Khai báo biến DOM (Nhưng chưa gán giá trị để tránh lỗi load)
+// Biến cho Modal Quản lý
+let modalOriginalData = []; // Lưu trạng thái ban đầu của checkbox để so sánh xem có thay đổi không
+let currentManageQuestionId = '';
+
+// Khai báo biến DOM
 let f, navDisplay, icon, previewCards, pagination, imageUpload, uploadButton, uploadIcon, saveBtn;
 
 // ==================== KHỞI TẠO HỆ THỐNG ====================
@@ -43,7 +47,6 @@ async function initApp() {
             loadMucdo().catch(e => console.error("Lỗi load mức độ:", e)) 
         ]);
     } else {
-        console.error("Không tìm thấy hàm callAPI.");
         showErrorToast("Lỗi: Không tìm thấy file kết nối API!");
     }
   } catch(e) {
@@ -166,13 +169,12 @@ function refreshFilters() {
     renderCurrentPage();
     updateNav();
     updatePagination();
-    clearForm(); // Gọi clearForm (bây giờ không bị reset list box nữa)
+    clearForm(); 
     
-    loadMon(); // Load lại từ gốc
+    loadMon(); 
     showSuccessToast('Đã làm mới bộ lọc và dọn dẹp form.');
 }
 
-// ==================== HÀM GET FILTERS ====================
 function getFilters() {
   const getVal = (nameOrId) => {
     const el = document.querySelector(`select[name="${nameOrId}"]`) || document.getElementById(nameOrId);
@@ -181,14 +183,7 @@ function getFilters() {
   const searchInput = document.getElementById('searchKeyword') || f.searchKeyword;
   const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-  return {
-    filter1: getVal('SubjectID'),
-    filter2: getVal('BlockID'),
-    filter3: getVal('TopicID'),
-    filter4: getVal('TypeID'),
-    filter5: getVal('LevelID'),
-    keyword: keyword || null
-  };
+  return { filter1: getVal('SubjectID'), filter2: getVal('BlockID'), filter3: getVal('TopicID'), filter4: getVal('TypeID'), filter5: getVal('LevelID'), keyword: keyword || null };
 }
 
 // ==================== LỌC DỮ LIỆU & RENDER ====================
@@ -209,8 +204,7 @@ async function filter(){
           loadQ(ids[0]); 
           loadPage(1); 
           showSuccessToast(`Tìm thấy ${ids.length} câu hỏi`);
-      }
-      else { 
+      } else { 
           renderCurrentPage(); 
           navDisplay.textContent='Không có kết quả'; 
           clearForm();
@@ -224,48 +218,7 @@ async function filter(){
   }
 }
 
-// TÍCH HỢP HÀM RÚT GỌN TỪ SCRIPT.JS
-async function loadPagecu(page){
-  const start = (page-1)*ITEMS_PER_PAGE;
-  const pageIds = ids.slice(start, start+ITEMS_PER_PAGE);
-  previewCards.innerHTML = '';
-  
-  if(pageIds.length === 0) { renderCurrentPage(); return; }
-
-  for (let localIndex = 0; localIndex < pageIds.length; localIndex++) {
-    try {
-      const res = await callAPI('loadQuestion', { QuestionID: pageIds[localIndex] });
-      if(res && res.success) {
-        const data = res.data;
-        filteredQuestions[start + localIndex] = data;
-        
-        // GỌI TRỰC TIẾP HÀM DÙNG CHUNG CỦA SCRIPT.JS
-        const card = buildSharedQuestionCard(data, {
-            id: pageIds[localIndex],
-            order: start + localIndex + 1,
-            showToggleIcon: false // Không cần hiện dấu +/- ở trang soạn câu hỏi
-        });
-        
-        // Nạp data vào form bên trái khi click
-        card.onclick = () => {
-            idx = start + localIndex; 
-            loadQ(pageIds[localIndex]); 
-            updateNav();
-        };
-
-        previewCards.appendChild(card);
-
-        if(typeof renderMathInElement !== 'undefined') {
-          renderMathInElement(card, {
-              delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}], 
-              throwOnError: false
-          });
-        }
-      }
-    } catch(e) { console.error("Lỗi tải câu hỏi:", e); }
-  }
-}
-
+// ==================== HÀM RENDER CÂU HỎI CHÍNH ====================
 async function loadPage(page){
   const start = (page-1)*ITEMS_PER_PAGE;
   const pageIds = ids.slice(start, start+ITEMS_PER_PAGE);
@@ -280,7 +233,6 @@ async function loadPage(page){
         const data = res.data;
         filteredQuestions[start + localIndex] = data;
         
-        // GỌI HÀM VẼ GIAO DIỆN CHUNG TỪ SCRIPT.JS
         const card = buildSharedQuestionCard(data, {
             id: pageIds[localIndex],
             order: start + localIndex + 1,
@@ -288,23 +240,33 @@ async function loadPage(page){
         });
         
         // =========================================================================
-        // KIỂM TRA: NẾU ĐANG Ở TRANG QUẢN LÝ THÌ BỔ SUNG DANH SÁCH BÀI KIỂM TRA
+        // KIỂM TRA: NẾU ĐANG Ở TRANG QUẢN LÝ THÌ BỔ SUNG ICON "LINK"
         // =========================================================================
         if (typeof IS_MANAGE_MODE !== 'undefined' && IS_MANAGE_MODE) {
-            const testNames = data.Tests || data.MaDeList || []; // Chờ API trả về mảng này
+            const testNames = data.Tests || []; 
             
             let testListHtml = '';
             if (testNames.length > 0) {
                 testListHtml = testNames.map(t => `<span class="inline-flex items-center gap-1 px-3 py-1 bg-white border border-[#bae6fd] rounded-lg text-[12px] font-semibold text-[#0284c7] shadow-sm"><i class="fas fa-file-alt text-[#38bdf8]"></i> ${t}</span>`).join('');
             } else {
-                testListHtml = `<span class="text-[12px] text-gray-400 italic bg-[#f8fafc] px-3 py-1 rounded-lg border border-[#f1f5f9]">Chưa sử dụng trong nhiệm vụ / đề thi nào.</span>`;
+                testListHtml = `<span class="text-[12px] text-gray-400 italic bg-[#f8fafc] px-3 py-1 rounded-lg border border-[#f1f5f9]">Chưa được sử dụng trong bài kiểm tra nào.</span>`;
             }
 
+            // Gói dữ liệu để truyền vào hàm mở Modal
+            // data.SubjectID và BlockID có sẵn trong data gốc trả về từ loadQuestion
+            const safeQId = data.QuestionID;
+            const safeSubj = data.SubjectID || '';
+            const safeBlock = data.BlockID || '';
+
             const testsContainer = document.createElement('div');
-            testsContainer.className = 'mt-3 pt-3 border-t border-dashed border-[#e0f2fe]';
+            testsContainer.className = 'mt-3 pt-3 border-t border-dashed border-[#e0f2fe] flex items-start gap-2';
+            
+            // Xóa Text lable thay bằng Icon Button cực đẹp
             testsContainer.innerHTML = `
-                <div class="text-[12px] font-bold text-[#004c6d] mb-2 uppercase tracking-wide"><i class="fas fa-link mr-1"></i> Đang sử dụng tại:</div>
-                <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="event.stopPropagation(); openTestManageModal('${safeQId}', '${safeSubj}', '${safeBlock}')" class="w-[32px] h-[32px] flex-shrink-0 flex items-center justify-center bg-[#e0f2fe] hover:bg-[#00b5e2] text-[#00b5e2] hover:text-white rounded-xl shadow-sm transition-all" title="Bấm để đưa câu hỏi này vào Bài kiểm tra">
+                    <i class="fas fa-link text-[14px]"></i>
+                </button>
+                <div class="flex flex-wrap gap-2 items-center min-h-[32px]">
                   ${testListHtml}
                 </div>
             `;
@@ -321,17 +283,172 @@ async function loadPage(page){
         previewCards.appendChild(card);
 
         if(typeof renderMathInElement !== 'undefined') {
-          renderMathInElement(card, {
-              delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}], 
-              throwOnError: false
-          });
+          renderMathInElement(card, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}], throwOnError: false });
         }
       }
     } catch(e) { console.error("Lỗi tải câu hỏi:", e); }
   }
 }
 
+// ==================== CÁC HÀM XỬ LÝ MODAL QUẢN LÝ ĐỀ (CHỈ CÓ Ở QUẢN LÝ) ====================
 
+function openTestManageModal(qID, subjID, blockID) {
+    if (!qID || !subjID || !blockID) {
+        showWarningToast("Câu hỏi này chưa có Môn hoặc Khối rõ ràng. Vui lòng lưu lại trước khi gán vào Đề thi.");
+        return;
+    }
+
+    currentManageQuestionId = qID;
+    
+    // Mở Modal và hiện Loading
+    const modal = document.getElementById('testManageModal');
+    const modalContent = document.getElementById('testManageModalContent');
+    const loading = document.getElementById('modalLoading');
+    const listContainer = document.getElementById('testListContainer');
+    
+    if(!modal) return;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    // Tạo hiệu ứng fade-in
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+    }, 10);
+
+    loading.classList.remove('hidden');
+    loading.classList.add('flex');
+    listContainer.classList.add('hidden');
+    listContainer.innerHTML = '';
+
+    // Gọi API lấy danh sách
+    callAPI('getTestsForQuestion', { QuestionID: qID, SubjectID: subjID, BlockID: blockID })
+    .then(res => {
+        loading.classList.add('hidden');
+        loading.classList.remove('flex');
+        listContainer.classList.remove('hidden');
+        listContainer.classList.add('flex');
+
+        if (res && res.success && res.data.length > 0) {
+            modalOriginalData = JSON.parse(JSON.stringify(res.data)); // Backup dữ liệu gốc để so sánh
+            
+            let html = '';
+            res.data.forEach((test, index) => {
+                const isEnable = test.Enable.toLowerCase() === 'yes';
+                const checkedStr = test.isChecked ? 'checked' : '';
+                const disabledStr = !isEnable ? 'disabled' : '';
+                const bgClass = isEnable ? (test.isChecked ? 'bg-[#f0f9ff] border-[#00b5e2]' : 'bg-white border-gray-200 hover:border-[#bae6fd]') : 'bg-gray-100 border-gray-200 opacity-60';
+                
+                html += `
+                    <label class="flex items-center justify-between p-3 rounded-xl border-2 ${bgClass} cursor-pointer transition-all">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="chk_test_${index}" data-testid="${test.TestID}" ${checkedStr} ${disabledStr} class="w-5 h-5 rounded text-[#00b5e2] focus:ring-[#00b5e2] cursor-pointer disabled:cursor-not-allowed">
+                            <div>
+                                <div class="font-bold text-[#004c6d]">${test.TestID} - ${test.TestTopics}</div>
+                                <div class="text-xs text-gray-500 font-medium">Đang có: <span class="text-[#0284c7]">${test.Total}</span> câu hỏi</div>
+                            </div>
+                        </div>
+                        ${!isEnable ? '<span class="text-[10px] font-bold px-2 py-1 bg-gray-200 text-gray-500 rounded uppercase">Đã khóa</span>' : ''}
+                    </label>
+                `;
+            });
+            listContainer.innerHTML = html;
+
+            // Thêm hiệu ứng đổi màu viền khi click checkbox
+            listContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const label = this.closest('label');
+                    if (this.checked) {
+                        label.classList.remove('bg-white', 'border-gray-200');
+                        label.classList.add('bg-[#f0f9ff]', 'border-[#00b5e2]');
+                    } else {
+                        label.classList.add('bg-white', 'border-gray-200');
+                        label.classList.remove('bg-[#f0f9ff]', 'border-[#00b5e2]');
+                    }
+                });
+            });
+
+        } else {
+            listContainer.innerHTML = `
+                <div class="text-center text-gray-400 py-6">
+                    <i class="fas fa-folder-open text-4xl mb-2 opacity-50"></i>
+                    <p>Chưa có Đề thi nào thuộc Môn và Khối này.</p>
+                </div>
+            `;
+        }
+    })
+    .catch(err => {
+        loading.innerHTML = `<div class="text-red-500"><i class="fas fa-exclamation-triangle"></i> Lỗi kết nối: ${err}</div>`;
+    });
+}
+
+function closeTestManageModal() {
+    const modal = document.getElementById('testManageModal');
+    const modalContent = document.getElementById('testManageModalContent');
+    if(!modal) return;
+
+    modal.classList.add('opacity-0');
+    modalContent.classList.remove('scale-100');
+    modalContent.classList.add('scale-95');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 300); // Đợi CSS transition chạy xong
+}
+
+function saveTestManageData() {
+    const listContainer = document.getElementById('testListContainer');
+    const btnSave = document.getElementById('btnSaveTestManage');
+    
+    // Quét toàn bộ checkbox hiện tại
+    const currentStatus = [];
+    listContainer.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+        currentStatus.push({
+            TestID: chk.getAttribute('data-testid'),
+            isChecked: chk.checked
+        });
+    });
+
+    // So sánh với modalOriginalData để tìm ra những cái NÀO BỊ THAY ĐỔI
+    const updates = [];
+    currentStatus.forEach(current => {
+        const original = modalOriginalData.find(o => o.TestID === current.TestID);
+        if (original && original.isChecked !== current.isChecked) {
+            updates.push(current); // Có thay đổi (từ check -> uncheck HOẶC ngược lại)
+        }
+    });
+
+    if (updates.length === 0) {
+        showInfoToast("Không có sự thay đổi nào.");
+        closeTestManageModal();
+        return;
+    }
+
+    // Đổi trạng thái nút Lưu
+    const originalBtnHtml = btnSave.innerHTML;
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+
+    // Gửi API cập nhật
+    callAPI('updateTestsQuestionList', { QuestionID: currentManageQuestionId, updates: updates })
+    .then(res => {
+        if (res && res.success) {
+            showSuccessToast(res.message || "Cập nhật thành công!");
+            closeTestManageModal();
+            // Lọc lại trang để render ra các Tag Xanh mới nhất
+            filter(); 
+        } else {
+            showErrorToast(res.error || "Lỗi cập nhật");
+        }
+    })
+    .catch(err => showErrorToast("Lỗi mạng: " + err))
+    .finally(() => {
+        btnSave.disabled = false;
+        btnSave.innerHTML = originalBtnHtml;
+    });
+}
 
 // ==================== LOAD & SAVE CÂU HỎI ====================
 async function loadQ(id){
@@ -351,7 +468,6 @@ async function loadQ(id){
   } catch(e) { icon.innerHTML=''; }
 }
 
-// UPDATE: Giữ nguyên Select Box khi bấm thêm mới, chỉ xóa ô nhập Text
 function clearForm(){ 
   ['QuestionLabel', 'A', 'B', 'C', 'D', 'Note', 'Keywords'].forEach(name => {
       if (f && f[name]) { f[name].value = ''; }
@@ -476,16 +592,12 @@ function updateUploadButton(){
   else{ uploadButton.classList.remove('success'); uploadIcon.className='fas fa-cloud-upload-alt'; }
 }
 
-// ==================== CÁC HÀM UI PHỤ TRỢ ====================
 function updateSaveStatus() { updateNav(); }
 
-
-
-// UPDATE: Hiện nút thêm mới (newBtn) khi idx === -1 và KHÓA NÚT LỌC KHI ĐANG EDIT/ADD
 function updateNav() {
   const newBtn=document.getElementById('newBtn'), copyBtn=document.getElementById('copyBtn'), editBtn=document.getElementById('editBtn'), delBtn=document.getElementById('delBtn'), prev=document.getElementById('prevBtn'), next=document.getElementById('nextBtn');
   const saveBtn = document.getElementById('saveBtn'); 
-  const btnFilter = document.getElementById('btnFilter'); // Lấy phần tử nút Lọc
+  const btnFilter = document.getElementById('btnFilter'); 
   
   let baseText = '0/0';
   if (edit) {
@@ -521,7 +633,6 @@ function updateNav() {
     if (saveBtn) saveBtn.style.display='flex'; 
     prev.style.display='none'; next.style.display='none';
 
-    // ĐANG Ở CHẾ ĐỘ THÊM/SỬA -> KHÓA NÚT LỌC VÀ LÀM MỜ
     if (btnFilter) {
         btnFilter.disabled = true;
         btnFilter.classList.add('opacity-50', 'cursor-not-allowed');
@@ -529,12 +640,10 @@ function updateNav() {
     }
   } 
   else if (idx === -1) {
-    // KHI VỪA TẢI TRANG HOẶC KHÔNG CHỌN CÂU NÀO: Hiện nút Thêm mới
     newBtn.style.display='flex'; copyBtn.style.display='none'; editBtn.style.display='none'; delBtn.style.display='none';
     if (saveBtn) saveBtn.style.display='none'; 
     prev.style.display='none'; next.style.display='none';
 
-    // MỞ KHÓA NÚT LỌC
     if (btnFilter) {
         btnFilter.disabled = false;
         btnFilter.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -547,7 +656,6 @@ function updateNav() {
     prev.style.display = idx === 0 ? 'none' : 'flex'; 
     next.style.display = idx === ids.length - 1 ? 'none' : 'flex';
 
-    // MỞ KHÓA NÚT LỌC
     if (btnFilter) {
         btnFilter.disabled = false;
         btnFilter.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -564,13 +672,10 @@ function updateNav() {
 
 function nav(dir){ if(dir===-2&&idx>0) idx--; else if(dir===2&&idx<ids.length-1) idx++; if(idx>=0&&idx<ids.length){ const page=Math.floor(idx/ITEMS_PER_PAGE)+1; if(page!==currentPage){ currentPage=page; loadPage(currentPage); updatePagination(); } loadQ(ids[idx]); } }
 
-// UPDATE: Giữ nguyên form lọc
 function newMode(){ currentImageId=''; currentQuestionId=''; isCopyMode=false; idx=-1; edit=true; filterMode=false; clearForm(); updateNav(); }
-
 function copyMode(){ if(idx===-1) return; isCopyMode=true; currentQuestionId=''; idx=-1; edit=true; filterMode=false; updateNav(); }
 function editMode(){ if(idx===-1) return; currentQuestionId=ids[idx]; isCopyMode=false; edit=true; filterMode=false; updateNav(); }
 
-// ==================== XỬ LÝ PHÂN TRANG ====================
 function updatePagination() {
   const paginationEl = document.getElementById('pagination');
   if (!paginationEl) return;
@@ -601,7 +706,6 @@ function goToPage(page) {
 function renderCurrentPage() { previewCards.innerHTML = '<em class="text-[#004c6d] opacity-60 text-center block w-full">Không có câu hỏi nào</em>'; }
 function autoResize(t){t.style.height='auto';t.style.height=t.scrollHeight+'px';}
 
-// ==================== XỬ LÝ KHUNG PREVIEW ẢNH TRONG FORM ====================
 function updateFormImagePreview() {
   const imgPreview = document.getElementById('formImagePreview');
   const placeholder = document.getElementById('formImagePlaceholder');

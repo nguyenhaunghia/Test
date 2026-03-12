@@ -69,10 +69,10 @@ async function xuLyFileDaChon() {
                  callAPI('ghiLogHeThong', {
                      PC_Name: deviceInfo,
                      UserID: currentUser.UserID,
-                     Event: 'SUBMIT_TL',
+                     Event: 'SUBMIT_TH',
                      Note: uploadTask.TestID 
                  }, true); 
-             } catch(logErr) { console.error("Lỗi ghi log TL:", logErr); }
+             } catch(logErr) { console.error("Lỗi ghi log TH:", logErr); }
 
              showToast('Nộp bài thành công!', 'success');
              setTimeout(() => loadNhiemVu(), 1000); 
@@ -113,7 +113,7 @@ async function loadNhiemVu() {
         const mon = t.SubjectName || t.Subject || t.mon || subjectID;
         const note = t.TestNote || t.Note || t.ghiChu || 'Chưa có yêu cầu cụ thể.';
         
-        const isTL = String(testID).trim().toUpperCase().startsWith('TL');
+        const isTH = String(testID).trim().toUpperCase().startsWith('TH');
 
         const dStart = begin ? new Date(begin) : null;
         const dEnd = end ? new Date(end) : null;
@@ -144,16 +144,16 @@ async function loadNhiemVu() {
             initBtnClass += 'bg-red-500 text-white cursor-not-allowed opacity-90';
         } else {
             initBtnDisabled = false;
-            initBtnText = isTL ? 'Tiếp tục hoàn thành nhiệm vụ học tập' : 'Tiếp tục hoàn thành nhiệm vụ học tập';
-            initBtnIcon = isTL ? 'fa-file-upload' : 'fa-play';
+            initBtnText = isTH ? 'Tiếp tục hoàn thành nhiệm vụ học tập' : 'Tiếp tục hoàn thành nhiệm vụ học tập';
+            initBtnIcon = isTH ? 'fa-file-upload' : 'fa-play';
             initBtnClass += 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white hover:shadow-lg hover:-translate-y-0.5';
-            initOnClick = isTL ? `onclick="kichHoatUpload('${testID}', '${subjectID}', '${mon}')"` : `onclick="window.open('lbai.html?mon=${encodeURIComponent(subjectID)}&maDe=${encodeURIComponent(testID)}', '_self')"`;
+            initOnClick = isTH ? `onclick="kichHoatUpload('${testID}', '${subjectID}', '${mon}')"` : `onclick="window.open('lbai.html?mon=${encodeURIComponent(subjectID)}&maDe=${encodeURIComponent(testID)}', '_self')"`;
         }
 
-        const col1 = isTL ? 'Ngày nộp' : 'Thời gian';
-        const col2 = isTL ? 'Tên File' : 'TGian';
-        const col3 = isTL ? 'Xem' : 'Đúng';
-        const col4Header = isTL ? '' : `<th class="py-2 px-2 text-center font-semibold">Điểm</th>`;
+        const col1 = isTH ? 'Ngày nộp' : 'Thời gian';
+        const col2 = isTH ? 'Tên File' : 'TGian';
+        const col3 = isTH ? 'Xem' : 'Đúng';
+        const col4Header = isTH ? '' : `<th class="py-2 px-2 text-center font-semibold">Điểm</th>`;
 
         // ==================== CÁC KHỐI GIAO DIỆN DÙNG CHUNG ====================
         const metaInfoHTML = `
@@ -200,7 +200,7 @@ async function loadNhiemVu() {
         let leftColumnHTML = '';
         let rightColumnHTML = '';
 
-        if (isTL) {
+        if (isTH) {
             // --- NẾU LÀ TỰ LUẬN: Đảo Lịch sử sang trái, Yêu cầu sang phải ---
             const yeuCauHTML = `
               <div class="flex-1 bg-indigo-50 border border-indigo-100 rounded-xl p-5 relative overflow-hidden group flex flex-col h-full">
@@ -276,8 +276,8 @@ async function loadNhiemVu() {
                let timeStr = formatDateFull(r.TimeUpdate);
                let htmlRow = '';
                
-               if (isTL) {
-                   let fileLink = r.File_TL || '#';
+               if (isTH) {
+                   let fileLink = r.File_TH || '#';
                    const linkHtml = `<a href="${fileLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold"><i class="fas fa-external-link-alt"></i></a>`;
                    htmlRow = `<tr class="hover:bg-slate-50 transition-colors"><td class="py-1.5 px-2 border-r border-slate-100 font-mono text-slate-600 whitespace-nowrap">${timeStr}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 text-slate-500">Bài Nộp</td><td class="py-1.5 px-2 text-center">${linkHtml}</td></tr>`;
                } else {
@@ -296,7 +296,7 @@ async function loadNhiemVu() {
              });
 
              let isAchieved = false;
-             if (isTL) {
+             if (isTH) {
                  isAchieved = histData.length > 0;
              } else {
                  const luot = histData.length, tb = luot > 0 ? (sum10/luot) : 0;
@@ -320,7 +320,7 @@ async function loadNhiemVu() {
                      }
                  } else {
                      if (isAchieved) {
-                         if (isTL) {
+                         if (isTH) {
                              btn.className = baseClass + 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg transition-all cursor-pointer';
                              btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Nộp bản cập nhật';
                              btn.disabled = false;

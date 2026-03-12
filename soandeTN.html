@@ -6,6 +6,11 @@
   <title>Soạn đề Trắc nghiệm - Smart School</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css"> 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
@@ -23,22 +28,14 @@
     /* Giao diện Glass cho Wrapper */
     .app-wrapper { display: flex; flex-direction: column; height: calc(100vh - 80px); margin-top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); color: #1e293b; overflow: hidden; width: 100%; max-width: 100%; box-sizing: border-box; flex: 1; border-top: 1px solid rgba(0, 181, 226, 0.2); }
     
-    .filter-panel { padding:20px; background: rgba(240, 249, 255, 0.5); border-bottom:1px solid #e0f2fe; display:flex; flex-direction:column; gap:10px; overflow-x:auto; flex-shrink:0; }
-    .filter-row { display:flex; flex-wrap:wrap; gap:16px; align-items:end; }
-    .filter-group { flex:1 1 180px; min-width:180px; display:flex; flex-direction:column; }
-    .keyword-group { flex:1 1 100%; max-width:100%; display:grid; grid-template-columns:180px 1fr; gap:0 16px; align-items:end; }
-    
-    /* Màu nhãn Text */
-    .keyword-group label, label { white-space:nowrap; margin-bottom:6px; align-self:center; font-weight:600; color:#004c6d; }
-    .keyword-group input { width:100%; }
-    
+    .filter-panel { padding:10px; background: rgba(240, 249, 255, 0.5); border-bottom:1px solid #e0f2fe; display:flex; flex-direction:column; gap:10px; overflow-x:auto; flex-shrink:0; }
         
     /* Tách riêng thẻ Option ra khỏi nhóm Input để không bị lỗi hiển thị trình duyệt */
     select, input[type="text"], input[type="number"], textarea { 
         width: 100%; 
         padding: 8px 20px !important; /* Tăng lề trái phải cho toàn bộ ô input/select */
         border: 1px solid #e0f2fe; 
-        border-radius: 8px; 
+        border-radius: 12px; /* Đổi thành 12px để bo góc đồng bộ với khối Icon */
         font-size: 14px; 
         box-sizing: border-box; 
         transition: all .2s; 
@@ -61,14 +58,14 @@
     /* =========================================================================
        UPDATE TỪ GEMINI: ÉP CHIỀU CAO CHO LIST BOX LỌC VÀ NÚT ĐỒNG BỘ
        ========================================================================= */
-    .filter-group select, 
-    .keyword-group input[type="text"], 
+    .filter-panel select, 
+    .filter-panel input[type="text"], 
     #btnFilter, 
     #btnRefresh {
-        height: 40px !important; /* Trả về mức 40px để chữ không bị chèn ép */
+        height: 36px !important; /* Trả về mức 40px để chữ không bị chèn ép */
     }
     /* Phá giới hạn trình duyệt cho thẻ select để nhận chiều cao */
-    .filter-group select {
+    .filter-panel select {
         appearance: none !important;
         -webkit-appearance: none !important;
         -moz-appearance: none !important;
@@ -162,30 +159,73 @@
 
   <div class="app-wrapper">
     <div class="filter-panel">
-      <div class="filter-row">
-        <div class="filter-group"><label>Môn</label><select name="mon"></select></div>
-        <div class="filter-group"><label>Khối</label><select name="khoi"></select></div>
-        <div class="filter-group"><label>Chủ đề</label><select name="chude"></select></div>
-        <div class="filter-group"><label>Loại câu hỏi</label><select name="loai"></select></div>
-        <div class="filter-group"><label>Mức độ</label><select name="mucdo"></select></div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 gap-y-1">
+        
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Môn học">
+            <i class="fas fa-book text-[20px]"></i>
+          </div>
+          <select name="mon" class="flex-1 min-w-0 truncate lg:col-span-2"></select>
+        </div>
 
-        <div class="flex items-end gap-3 h-[40px]">
-            <button id="btnFilter" class="h-full px-5 flex items-center justify-center gap-2 rounded-xl text-white font-bold transition-all duration-300" title="Lọc dữ liệu">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Khối lớp">
+            <i class="fas fa-users text-[20px]"></i>
+          </div>
+          <select name="khoi" class="flex-1 min-w-0 truncate"></select>
+        </div>
+
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Chủ đề">
+            <i class="fas fa-layer-group text-[20px]"></i>
+          </div>
+          <select name="chude" class="flex-1 min-w-0 truncate"></select>
+        </div>
+
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Loại câu hỏi">
+            <i class="fas fa-question-circle text-[20px]"></i>
+          </div>
+          <select name="loai" class="flex-1 min-w-0 truncate"></select>
+        </div>
+
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Mức độ">
+            <i class="fas fa-signal text-[20px]"></i>
+          </div>
+          <select name="mucdo" class="flex-1 min-w-0 truncate"></select>
+        </div>
+
+      </div>
+
+
+
+
+      <div class="flex flex-wrap items-center gap-4 mt-0">
+        
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <div class="w-[36px] h-[36px] shrink-0 flex items-center justify-center bg-[#e0f2fe] rounded-xl text-[#00b5e2] cursor-help transition-all hover:bg-[#00b5e2] hover:text-white shadow-sm" title="Tìm kiếm từ khóa">
+            <i class="fas fa-search text-[20px]"></i>
+          </div>
+          <input type="text" id="keywordSearch" placeholder="Nhập từ khóa ..." oninput="handleSearchInput()" class="flex-1 min-w-0 truncate">
+        </div>
+
+        <div class="flex items-center gap-3 h-[36px] flex-shrink-0">
+            <button id="btnFilter" class="h-full px-3 flex items-center justify-center gap-2 rounded-xl text-white font-bold transition-all duration-300 shadow-sm" title="Lọc dữ liệu">
                 <i class="fas fa-filter"></i><span class="hidden sm:inline">Lọc</span>
             </button>
-            <button id="btnRefresh" class="w-[40px] h-full flex-shrink-0 flex items-center justify-center rounded-xl bg-[#e0f2fe] text-white transition-all duration-300 hover:bg-[#bae6fd]" title="Làm mới dữ liệu">
-                <i class="fas fa-sync-alt text-lg"></i>
+            <button id="btnRefresh" class="w-[36px] h-full flex-shrink-0 flex items-center justify-center rounded-xl bg-[#e0f2fe] text-[#00b5e2] transition-all duration-300 shadow-sm hover:bg-[#bae6fd] hover:text-[#004c6d]" title="Làm mới dữ liệu">
+                <i class="fas fa-sync-alt text-[16px]"></i>
             </button>
         </div>
-    
-    </div>
-
-      <div class="filter-row">
-        <div class="keyword-group">
-          <label for="keywordSearch">Tìm kiếm từ khóa</label>
-          <input type="text" id="keywordSearch" placeholder="Nhập từ khóa ..." oninput="handleSearchInput()" />
-        </div>
+        
       </div>
+
+
+
+
+
+
     </div>
 
     <div class="main-content">

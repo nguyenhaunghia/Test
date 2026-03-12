@@ -44,7 +44,10 @@ async function initApp() {
         await Promise.all([
             loadMon().catch(e => console.error("Lỗi load môn:", e)), 
             loadLoai().catch(e => console.error("Lỗi load loại:", e)),
-            loadMucdo().catch(e => console.error("Lỗi load mức độ:", e)) 
+            loadMucdo().catch(e => console.error("Lỗi load mức độ:", e)),
+            loadTest().catch(e => console.error("Lỗi load test:", e))
+
+
         ]);
     } else {
         showErrorToast("Lỗi: Không tìm thấy file kết nối API!");
@@ -107,6 +110,8 @@ async function loadKhoi() {
       res.data.forEach(item => sel.add(new Option(item.BlockName, item.BlockID))); 
     }
     await loadChude();
+    await loadChude();
+    if (typeof loadTest === 'function') await loadTest();
   } catch(e) { sel.innerHTML = '<option value="">Lỗi tải khối</option>'; }
 }
 
@@ -153,6 +158,35 @@ async function loadChude() {
   } catch(e) { sel.innerHTML = '<option value="">Lỗi tải CĐ</option>'; }
 }
 
+
+async function loadTest() {
+  if (!f || !f.TestID) return; 
+  const sel = f.TestID; 
+  sel.innerHTML = '<option value="">Đang tải...</option>';
+  try {
+    const params = { SubjectID: f.SubjectID.value || null, BlockID: f.BlockID.value || null };
+    const res = await callAPI('getTestList', params); 
+    
+    // ==========================================
+    // MÁY PHÁT HIỆN LỖI: In thẳng kết quả ra F12 để bắt bệnh
+    console.log("📥 KẾT QUẢ API TEST TRẢ VỀ:", res);
+    if (res && res.error) {
+        alert("🚨 LỖI TỪ SERVER: " + res.error); // Bật thông báo đỏ chót lên màn hình luôn!
+    }
+    // ==========================================
+
+    sel.innerHTML = '<option value="">Tất cả bài Test</option>';
+    if (res && res.success && res.data) { 
+      res.data.forEach(item => sel.add(new Option(item.TestTopic || item.TestTopics, item.TestID))); 
+    }
+  } catch(e) { 
+    sel.innerHTML = '<option value="">Lỗi tải Test</option>'; 
+    console.error("Lỗi JS khi tải Test:", e);
+  }
+}
+
+
+
 // ==================== LÀM MỚI BỘ LỌC ====================
 function refreshFilters() {
     if(f.SubjectID) f.SubjectID.value = '';
@@ -160,6 +194,7 @@ function refreshFilters() {
     if(f.TopicID) { f.TopicID.innerHTML = '<option value="">Tất cả</option>'; f.TopicID.value = ''; }
     if(f.TypeID) f.TypeID.value = '';
     if(f.LevelID) f.LevelID.value = '';
+    if(f.TestID) { f.TestID.innerHTML = '<option value="">Tất cả bài Test</option>'; f.TestID.value = ''; }
     if(f.searchKeyword) f.searchKeyword.value = '';
     
     ids = [];
@@ -183,7 +218,14 @@ function getFilters() {
   const searchInput = document.getElementById('searchKeyword') || f.searchKeyword;
   const keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-  return { filter1: getVal('SubjectID'), filter2: getVal('BlockID'), filter3: getVal('TopicID'), filter4: getVal('TypeID'), filter5: getVal('LevelID'), keyword: keyword || null };
+  return { 
+    filter1: getVal('SubjectID'), 
+    filter2: getVal('BlockID'), 
+    filter3: getVal('TopicID'), 
+    filter4: getVal('TypeID'), 
+    filter5: getVal('LevelID'), 
+    filter6: getVal('TestID'),
+    keyword: keyword || null };
 }
 
 // ==================== LỌC DỮ LIỆU & RENDER ====================

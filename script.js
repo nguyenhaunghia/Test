@@ -1,7 +1,7 @@
 let questions = [];
 
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycbx0NnZoYvk-Lx2AwNoHFVdvWarc76i-yB0O0ltJrtdtMQd_mYI5QSjqVqOtrYu918jo/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxWBl8VistQs2d_XNtXBa4y9LkWIHUH8mZHw5l7NyNgnFxjK1HPzbPtIsVhFyB7o4tQ/exec";
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================
@@ -221,7 +221,7 @@ function renderGlobalHeader() {
   else if (currentUrl.includes('ontap')) pageTitle =      "ÔN TẬP TỰ LUYỆN";
   else if (currentUrl.includes('xhang')) pageTitle =      "BẢNG XẾP HẠNG";
   else if (currentUrl.includes('tke')) pageTitle =        "THỐNG KÊ KẾT QUẢ";
-  else if (currentUrl.includes('index')) pageTitle =      "HỆ THỐNG SMART SCHOOL";
+  
   else if (currentUrl.includes('login')) pageTitle =      "ĐĂNG NHẬP HỆ THỐNG";
   else if (currentUrl.includes('new') || currentUrl.includes('register')) pageTitle = "ĐĂNG KÝ TÀI KHOẢN MỚI";
 

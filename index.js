@@ -25,7 +25,7 @@ function loadFeatures() {
   const actionTN = isGV ? "chuyenTrang('soandeTN')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionThH = isGV ? "chuyenTrang('soandeTH')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGB = isGV ? "chuyenTrang('gbai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
-  const actionTH = isGV ? "chuyenTrang('thkq')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionTH = isGV ? "chuyenTrang('tonghop')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGS = isGV ? "chuyenTrang('gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
 
   // CỘT 1: HỆ THỐNG

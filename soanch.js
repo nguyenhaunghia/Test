@@ -538,7 +538,7 @@ function isFormValid() {
   return "";
 }
 
-async function save(){
+async function savecu(){
   const validMsg = isFormValid();
   if (validMsg) { showWarningToast(validMsg); navDisplay.textContent = validMsg; navDisplay.className = 'status'; return; }
 
@@ -576,6 +576,52 @@ async function save(){
     }
   } catch(e) { showErrorToast('Lỗi mạng khi lưu'); navDisplay.textContent = 'Lỗi lưu'; }
 }
+
+
+async function save(){
+  const validMsg = isFormValid();
+  if (validMsg) { showWarningToast(validMsg); navDisplay.textContent = validMsg; navDisplay.className = 'status'; return; }
+
+  let imageIdToSave = currentImageId || '';
+  if (isCopyMode && currentImageId) {
+    navDisplay.textContent = 'Đang copy ảnh...';
+    try {
+      const resImg = await callAPI('duplicateImage', { ImageID: currentImageId });
+      if (resImg && resImg.success) imageIdToSave = resImg.url;
+    } catch(e) {}
+  }
+
+  // BẢO TOÀN VÀ BỔ SUNG: Thêm TestID vào gói data gửi lên Server
+  const data = {
+    SubjectID: f.SubjectID.value, BlockID: f.BlockID.value, TypeID: f.TypeID.value,
+    TopicID: f.TopicID.value, LevelID: f.LevelID.value, QuestionLabel: f.QuestionLabel.value.trim(),
+    A: f.A.value.trim(), B: f.B.value.trim(), C: f.C.value.trim(), D: f.D.value.trim(),
+    Note: f.Note.value.trim(), Keywords: f.Keywords.value.trim(), Image: imageIdToSave,
+    // Lấy TestID nếu đang ở trang quản lý, ngược lại để rỗng
+    TestID: (f.TestID && f.TestID.value) ? f.TestID.value : '' 
+  };
+
+  navDisplay.textContent = 'Đang lưu...'; navDisplay.className = '';
+  
+  try {
+    let res;
+    if (currentQuestionId) {
+      res = await callAPI('updateQuestion', { QuestionID: currentQuestionId, data: data });
+    } else {
+      res = await callAPI('saveQuestion', data);
+    }
+
+    if (res && res.success) { 
+      showSuccessToast(currentQuestionId ? 'Cập nhật thành công!' : 'Thêm mới thành công!'); 
+      edit = false; filterMode = true; filter(); 
+    } else { 
+      showErrorToast(res.error || 'Lỗi lưu dữ liệu'); navDisplay.textContent = 'Lỗi lưu'; navDisplay.className = '';
+    }
+  } catch(e) { showErrorToast('Lỗi mạng khi lưu'); navDisplay.textContent = 'Lỗi lưu'; }
+}
+
+
+
 
 async function del(){
   if(idx===-1) return;

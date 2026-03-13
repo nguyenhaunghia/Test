@@ -1,7 +1,7 @@
 let questions = [];
 
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycbyYBzmPyvpCgtKZngwkgK_yCh-lvUeHhg6CYleGt1Th91t9QVbWvXzdTRIOSoOtx7-T/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyyyL5ZEnPaTmrxRndiW22t1mLBeNBYq50nM1SbGWnNMHiJQOj2W30-CPfAHCUWCLMu/exec";
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================

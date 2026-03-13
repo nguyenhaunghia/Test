@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý đề - Smart School</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: radial-gradient(circle at top right, #38bdf8, #bae6fd); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; }
+    .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(0, 181, 226, 0.15); box-shadow: 0 10px 30px rgba(0, 76, 109, 0.05); border-radius: 20px; transition: all 0.3s ease; }
+    .test-card { transition: all 0.3s ease; }
+    .test-card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(0, 181, 226, 0.2); }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(0,181,226,0.05); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0,181,226,0.2); border-radius: 10px; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(240, 249, 255, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: #00b5e2; transition: opacity 0.3s; }
+  </style>
+</head>
+<body class="antialiased custom-scroll">
+
+  <div id="loading" class="loading-overlay">
+    <div class="w-14 h-14 border-4 border-[#00b5e2] border-t-transparent rounded-full animate-spin mb-4"></div>
+    <div id="loadingText" class="font-bold tracking-wide text-sm text-[#004c6d]">Đang tải dữ liệu...</div>
+  </div>
+
+  <div id="global-header"></div>
+
+  <main class="w-full max-w-7xl mx-auto px-4 md:px-8 py-8">
+    <div class="glass-panel p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
+          <i class="fas fa-tasks text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-[#004c6d]">Quản lý Ngân hàng Đề</h1>
+          <p class="text-sm text-slate-500">Xem, chỉnh sửa, nhân bản và xóa đề thi</p>
+        </div>
+      </div>
+      
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <select id="filterSubject" class="px-4 py-2.5 rounded-xl border border-blue-200 bg-white/70 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400 font-medium min-w-[150px]">
+          <option value="">Tất cả môn học</option>
+          </select>
+        
+        <div class="relative flex-1 md:w-[250px]">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="filterKeyword" placeholder="Nhập tên đề hoặc mã..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-blue-200 bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+        </div>
+        
+        <button onclick="filterTests()" class="px-5 py-2.5 bg-gradient-to-r from-[#00b5e2] to-[#004c6d] text-white rounded-xl font-bold shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+          <i class="fas fa-filter mr-2"></i>Lọc
+        </button>
+      </div>
+    </div>
+
+    <div id="testGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      </div>
+    
+    <div id="emptyState" class="hidden text-center py-20 glass-panel mt-4">
+        <i class="far fa-folder-open text-6xl text-slate-300 mb-4"></i>
+        <h3 class="text-xl font-bold text-slate-500">Không tìm thấy đề thi nào!</h3>
+        <p class="text-slate-400 mt-2">Hãy thử đổi từ khóa hoặc bộ lọc môn học.</p>
+    </div>
+
+  </main>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="script.js"></script>
+  <script src="quanlyde.js"></script>
+</body>
+</html>

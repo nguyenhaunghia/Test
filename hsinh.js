@@ -39,6 +39,9 @@ function kichHoatUpload(testID, subjectID, mon) {
    fileInput.click();
 }
 
+// =========================================================================
+// HÀM NỘP FILE
+// =========================================================================
 async function xuLyFileDaChon() {
    const input = document.getElementById('uploadInput');
    if (input.files.length === 0) return;
@@ -72,10 +75,12 @@ async function xuLyFileDaChon() {
                      Event: 'SUBMIT_TH',
                      Note: uploadTask.TestID 
                  }, true); 
-             } catch(logErr) { console.error("Lỗi ghi log TH:", logErr); }
+             } catch(logErr) {}
 
              showToast('Nộp bài thành công!', 'success');
-             setTimeout(() => loadNhiemVu(), 1000); 
+             
+             // NỘP XONG: Chờ 2.5 giây cho Sheet lưu xong rồi tự lấy dữ liệu mới ráp vào
+             setTimeout(() => refreshLichSuThucHanh(uploadTask.TestID, uploadTask.subjectID), 2500); 
           } else {
              showToast(res.error || 'Lỗi nộp bài', 'error');
           }
@@ -84,12 +89,15 @@ async function xuLyFileDaChon() {
    reader.readAsDataURL(file);
 }
 
+// =========================================================================
+// HÀM LOAD TOÀN BỘ NHIỆM VỤ (ĐÃ THÊM NÚT REFRESH KẾ BÊN CHỮ "XEM")
+// =========================================================================
 async function loadNhiemVu() {
   const container = $('#taskList');
   if(container && container.innerHTML === '') toggleLoading(true);
 
   try {
-      const res = await callAPI('getNhiemVuHocSinh', { UserID: currentUser.UserID, ClassID: currentUser.ClassID });
+      const res = await callAPI('getNhiemVuHocSinh', { UserID: currentUser.UserID, ClassID: currentUser.ClassID, _t: new Date().getTime() });
       toggleLoading(false);
       
       const tasks = res.data || [];
@@ -152,10 +160,12 @@ async function loadNhiemVu() {
 
         const col1 = isTH ? 'Ngày nộp' : 'Thời gian';
         const col2 = isTH ? 'Tên File' : 'TGian';
-        const col3 = isTH ? 'Xem' : 'Đúng';
+        
+        // MẤU CHỐT Ở ĐÂY: Thêm icon xoay (spin) kế bên chữ Xem
+        const col3 = isTH ? `Xem <i onclick="this.classList.add('fa-spin'); refreshLichSuThucHanh('${testID}', '${subjectID}').then(() => this.classList.remove('fa-spin'))" class="fas fa-sync-alt ml-1.5 cursor-pointer text-[#00b5e2] hover:text-indigo-600 transition-colors" title="Làm mới lịch sử"></i>` : 'Đúng';
+        
         const col4Header = isTH ? '' : `<th class="py-2 px-2 text-center font-semibold">Điểm</th>`;
 
-        // ==================== CÁC KHỐI GIAO DIỆN DÙNG CHUNG ====================
         const metaInfoHTML = `
             <div class="flex flex-col gap-2.5 mb-5">
               <div class="flex flex-wrap items-center gap-2">
@@ -201,7 +211,6 @@ async function loadNhiemVu() {
         let rightColumnHTML = '';
 
         if (isTH) {
-            // --- NẾU LÀ TỰ LUẬN: Đảo Lịch sử sang trái, Yêu cầu sang phải ---
             const yeuCauHTML = `
               <div class="flex-1 bg-indigo-50 border border-indigo-100 rounded-xl p-5 relative overflow-hidden group flex flex-col h-full">
                 <div class="absolute top-0 right-0 p-3 opacity-5"><i class="fas fa-quote-right text-5xl text-indigo-900"></i></div>
@@ -223,7 +232,6 @@ async function loadNhiemVu() {
                 ${yeuCauHTML}
               </div>`;
         } else {
-            // --- NẾU LÀ TRẮC NGHIỆM: Giữ nguyên bố cục cũ ---
             const progressHTML = `
                 <div class="space-y-3.5 mt-2 flex-1">
                    <div class="flex items-center gap-3 text-xs"><span class="w-16 text-slate-500 font-bold">Lượt làm</span><div class="progress-bar h-1.5 flex-1 bg-slate-200/60 rounded-full"><div class="progress-fill luot rounded-full" id="fill-luot-${testID}"></div></div><span class="w-10 text-right font-mono font-bold text-slate-700" id="luot-${testID}">0/${countReq}</span></div>
@@ -259,8 +267,7 @@ async function loadNhiemVu() {
           </div>`;
         container.appendChild(card);
 
-        // ==================== LOAD LỊCH SỬ TỪ SERVER ====================
-        callAPI('getLichSuLamBai', { TestID: testID, UserID: currentUser.UserID, SubjectID: subjectID }, true).then(histRes => {
+        callAPI('getLichSuLamBai', { TestID: testID, UserID: currentUser.UserID, SubjectID: subjectID, _t: new Date().getTime() }, true).then(histRes => {
            const cardRoot = $(`#btn-${testID}`).closest('.card-glass');
            cardRoot.querySelector('.loading-hist').style.display = 'none';
            
@@ -272,24 +279,26 @@ async function loadNhiemVu() {
              const tbody = cardRoot.querySelector(`#hist-body-${testID}`);
              
              let sum10 = 0, max10 = 0;
-             histData.slice().reverse().forEach(r => {
+             
+             histData.forEach((r) => {
                let timeStr = formatDateFull(r.TimeUpdate);
                let htmlRow = '';
                
                if (isTH) {
                    let fileLink = r.File_TH || '#';
-                   const linkHtml = `<a href="${fileLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold"><i class="fas fa-external-link-alt"></i></a>`;
-                   htmlRow = `<tr class="hover:bg-slate-50 transition-colors"><td class="py-1.5 px-2 border-r border-slate-100 font-mono text-slate-600 whitespace-nowrap">${timeStr}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 text-slate-500">Bài Nộp</td><td class="py-1.5 px-2 text-center">${linkHtml}</td></tr>`;
+                   const linkHtml = `<a href="${fileLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold" title="Xem file"><i class="fas fa-external-link-alt"></i></a>`;
+                   
+                   const deleteBtn = `<button onclick="xoaBaiTuLuan(this, '${r.TimeUpdate}', '${testID}', '${subjectID}')" class="text-red-400 hover:text-red-600 transition-colors ml-3" title="Xóa bài nộp này"><i class="fas fa-trash-alt"></i></button>`;
+                   
+                   htmlRow = `<tr class="hover:bg-slate-50 transition-colors"><td class="py-1.5 px-2 border-r border-slate-100 font-mono text-slate-600 whitespace-nowrap">${timeStr}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 text-slate-500">Bài Nộp</td><td class="py-1.5 px-2 text-center flex items-center justify-center">${linkHtml} ${deleteBtn}</td></tr>`;
                } else {
                    const correct = parseFloat(r.Correct || 0);
                    const total = parseFloat(r.Total || 1);
                    const qd = total > 0 ? ((correct/total)*10) : 0;
                    sum10 += qd; max10 = Math.max(max10, qd);
-                   
                    let durDisplay = '--';
                    const duration = parseInt(r.Duration || 0);
                    if (duration > 0) { const m = Math.floor(duration/60), s = duration%60; durDisplay = `${m<10?'0'+m:m}:${s<10?'0'+s:s}`; }
-                   
                    htmlRow = `<tr class="hover:bg-slate-50 transition-colors"><td class="py-1.5 px-2 border-r border-slate-100 font-mono text-slate-600 whitespace-nowrap">${timeStr}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 text-slate-500 font-mono">${durDisplay}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 font-mono text-indigo-600 font-bold">${correct}/${total}</td><td class="py-1.5 px-2 text-center font-bold text-emerald-600 font-mono text-sm">${qd.toFixed(1)}</td></tr>`;
                }
                tbody.innerHTML += htmlRow;
@@ -303,14 +312,12 @@ async function loadNhiemVu() {
                  if(countReq > 0) { $(`#luot-${testID}`).innerText = `${luot}/${countReq}`; $(`#fill-luot-${testID}`).style.width = Math.min(100, (luot/countReq)*100) + '%'; }
                  if(avgReq > 0) { $(`#tb-${testID}`).innerText = `${tb.toFixed(1)}/${avgReq.toFixed(1)}`; $(`#fill-tb-${testID}`).style.width = Math.min(100, (tb/avgReq)*100) + '%'; }
                  if(maxReq > 0) { $(`#cao-${testID}`).innerText = `${max10.toFixed(1)}/${maxReq.toFixed(1)}`; $(`#fill-cao-${testID}`).style.width = Math.min(100, (max10/maxReq)*100) + '%'; }
-                 
                  isAchieved = (countReq > 0 && luot >= countReq && tb >= avgReq && max10 >= maxReq);
              }
 
              const btn = $(`#btn-${testID}`);
              if (btn && !isNotStarted) {
                  const baseClass = 'w-full py-3 px-3 text-[12px] md:text-sm leading-snug text-center font-bold shadow-md rounded-xl flex items-center justify-center gap-2 mt-4 ';
-                 
                  if (isExpired) {
                      if (isAchieved) {
                          btn.className = baseClass + 'bg-emerald-600 text-white cursor-not-allowed opacity-90';
@@ -342,6 +349,156 @@ async function loadNhiemVu() {
       });
   } catch (err) {
       toggleLoading(false);
-      showToast('Không thể tải nhiệm vụ, thử lại sau', 'error');
+      showToast('Không thể tải nhiệm vụ', 'error');
   }
+}
+
+// =========================================================================
+// HỘP THOẠI XÁC NHẬN (UI/UX CHUẨN GLASSMORPHISM)
+// =========================================================================
+function showDeleteConfirmModal(onConfirm) {
+    let modal = document.getElementById('customDeleteModal');
+    if (!modal) {
+        const modalHtml = `
+        <div id="customDeleteModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 hidden">
+            <div class="bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl p-7 w-[90%] max-w-[340px] transform scale-95 transition-all duration-300">
+                <h3 class="text-[19px] font-bold text-[#004c6d] text-center mb-2">Xác nhận xóa</h3>
+                <p class="text-[13.5px] text-[#00b5e2] text-center mb-7 leading-relaxed font-medium">Bạn có chắc chắn muốn xóa bài nộp này?<br>Hành động này không thể hoàn tác.</p>
+                <div class="flex items-center justify-center gap-4">
+                    <button id="btnCancelDelete" class="flex-1 py-2.5 rounded-xl font-bold text-[#004c6d] bg-gray-200/80 hover:bg-gray-300 transition-colors shadow-sm">Hủy</button>
+                    <button id="btnConfirmDelete" class="flex-1 py-2.5 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-[0_4px_15px_rgba(239,68,68,0.4)] transition-all transform hover:-translate-y-0.5">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        modal = document.getElementById('customDeleteModal');
+    }
+
+    const modalBox = modal.querySelector('div > div');
+    const btnCancel = document.getElementById('btnCancelDelete');
+    const btnConfirm = document.getElementById('btnConfirmDelete');
+
+    modal.classList.remove('hidden');
+    void modal.offsetWidth; 
+    modal.classList.remove('opacity-0');
+    modalBox.classList.remove('scale-95');
+    modalBox.classList.add('scale-100');
+
+    const closeModal = () => {
+        modal.classList.add('opacity-0');
+        modalBox.classList.remove('scale-100');
+        modalBox.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    btnCancel.onclick = closeModal;
+    btnConfirm.onclick = () => {
+        closeModal();
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+}
+
+// =========================================================================
+// HÀM REFRESH CỤC BỘ (CHẠY KHI BẤM NÚT REFRESH TAY)
+// =========================================================================
+async function refreshLichSuThucHanh(testID, subjectID) {
+    try {
+        const histRes = await callAPI('getLichSuLamBai', { 
+            TestID: testID, 
+            UserID: currentUser.UserID, 
+            SubjectID: subjectID, 
+            _t: new Date().getTime() 
+        }, true);
+        
+        const cardRoot = document.getElementById(`btn-${testID}`).closest('.card-glass');
+        if (!cardRoot) return;
+        
+        const tbody = cardRoot.querySelector(`#hist-body-${testID}`);
+        const table = cardRoot.querySelector('table');
+        const emptyHist = cardRoot.querySelector('.empty-hist');
+        const histData = histRes.data || [];
+        
+        if(histData.length === 0) {
+            table.classList.add('hidden');
+            emptyHist.classList.remove('hidden');
+            
+            // Xóa hết sạch thì đưa nút về "Tiếp tục làm bài"
+            const btn = document.getElementById(`btn-${testID}`);
+            if (btn && !btn.innerHTML.includes('fa-check-circle')) {
+                btn.className = 'w-full py-3 px-3 text-[12px] md:text-sm leading-snug text-center font-bold shadow-md rounded-xl flex items-center justify-center gap-2 transition-all mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white hover:shadow-lg hover:-translate-y-0.5';
+                btn.innerHTML = '<i class="fas fa-file-upload"></i> Tiếp tục hoàn thành nhiệm vụ học tập';
+            }
+        } else {
+            table.classList.remove('hidden');
+            emptyHist.classList.add('hidden');
+            tbody.innerHTML = ''; 
+            
+            histData.forEach((r) => {
+                let timeStr = formatDateFull(r.TimeUpdate);
+                let fileLink = r.File_TH || '#';
+                const linkHtml = `<a href="${fileLink}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold" title="Xem file"><i class="fas fa-external-link-alt"></i></a>`;
+                const deleteBtn = `<button onclick="xoaBaiTuLuan(this, '${r.TimeUpdate}', '${testID}', '${subjectID}')" class="text-red-400 hover:text-red-600 transition-colors ml-3" title="Xóa bài nộp này"><i class="fas fa-trash-alt"></i></button>`;
+                let htmlRow = `<tr class="hover:bg-slate-50 transition-colors"><td class="py-1.5 px-2 border-r border-slate-100 font-mono text-slate-600 whitespace-nowrap">${timeStr}</td><td class="py-1.5 px-2 text-center border-r border-slate-100 text-slate-500">Bài Nộp</td><td class="py-1.5 px-2 text-center flex items-center justify-center">${linkHtml} ${deleteBtn}</td></tr>`;
+                tbody.innerHTML += htmlRow;
+            });
+
+            const btn = document.getElementById(`btn-${testID}`);
+            if (btn && !btn.disabled && btn.innerHTML.includes('fa-file-upload')) {
+                btn.className = 'w-full py-3 px-3 text-[12px] md:text-sm leading-snug text-center font-bold shadow-md rounded-xl flex items-center justify-center gap-2 mt-4 bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg transition-all cursor-pointer';
+                btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Nộp bản cập nhật';
+            }
+        }
+    } catch(e) {}
+}
+
+// =========================================================================
+// HÀM XÓA BÀI TỰ LUẬN (BẮN BỎ TẠI CHỖ, KHÔNG CHỜ CACHE NỮA)
+// =========================================================================
+function xoaBaiTuLuan(btnElement, timeUpdate, testID, subjectID) {
+    showDeleteConfirmModal(async () => {
+        toggleLoading(true, "Đang xóa bài...");
+        try {
+            const res = await callAPI('deleteBaiTuLuan', {
+                UserID: currentUser.UserID,
+                TestID: testID,
+                SubjectID: subjectID,
+                TimeUpdate: timeUpdate,
+                _t: new Date().getTime() 
+            });
+            
+            toggleLoading(false);
+            if (res && res.success) {
+                showSuccessToast('Đã xóa bài nộp thành công!');
+                
+                try {
+                    const row = btnElement.closest('tr');
+                    if (row) {
+                        const tbody = row.closest('tbody');
+                        const cardRoot = row.closest('.card-glass');
+                        row.remove(); // Xóa sổ ngay lập tức
+                        
+                        // Nếu sạch bong không còn bài nào
+                        if (tbody && tbody.children.length === 0) {
+                            if (cardRoot) {
+                                cardRoot.querySelector('table').classList.add('hidden');
+                                cardRoot.querySelector('.empty-hist').classList.remove('hidden');
+                            }
+                            
+                            const btn = document.getElementById(`btn-${testID}`);
+                            if (btn && !btn.disabled) {
+                                btn.className = 'w-full py-3 px-3 text-[12px] md:text-sm leading-snug text-center font-bold shadow-md rounded-xl flex items-center justify-center gap-2 transition-all mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white hover:shadow-lg hover:-translate-y-0.5';
+                                btn.innerHTML = '<i class="fas fa-file-upload"></i> Tiếp tục hoàn thành nhiệm vụ học tập';
+                            }
+                        }
+                    }
+                } catch(domErr) {}
+            } else {
+                showErrorToast(res.error || 'Lỗi khi xóa bài');
+            }
+        } catch (e) {
+            toggleLoading(false);
+            showErrorToast('Lỗi kết nối mạng!');
+        }
+    });
 }

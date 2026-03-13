@@ -7,7 +7,6 @@ function toggleSubMenu(element) {
   if(arrow) arrow.classList.toggle('rotate');
 }
 
-
 // --- HÀM TẢI KHUNG CHỨC NĂNG DỰA TRÊN QUYỀN VÀ OBJECT ---
 function loadFeatures() {
   const featureGrid = document.getElementById('featureGrid');
@@ -24,6 +23,7 @@ function loadFeatures() {
   const actionQuanLyCH = isGV ? "chuyenTrang('quanlych')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTN = isGV ? "chuyenTrang('soandeTN')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionThH = isGV ? "chuyenTrang('soandeTH')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
+  const actionQuanLyDe = isGV ? "chuyenTrang('quanlyde')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGB = isGV ? "chuyenTrang('gbai')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionTH = isGV ? "chuyenTrang('tonghop')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
   const actionGS = isGV ? "chuyenTrang('gsat')" : (currentUser ? "showToast('Tài khoản chưa được phân quyền', 'error')" : "requireLogin()");
@@ -69,8 +69,10 @@ function loadFeatures() {
         <div class="submenu-container space-y-2">
            <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionTN}"><i class="fas fa-list-check mr-3 text-blue-200 text-sm"></i><span class="text-sm">Trắc nghiệm</span></div>
            <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionThH}"><i class="fas fa-pen-nib mr-3 text-blue-200 text-sm"></i><span class="text-sm">Thực hành</span></div>
+           <div class="menu-item submenu-item flex items-center cursor-pointer" onclick="${actionQuanLyDe}"><i class="fas fa-tasks mr-3 text-blue-200 text-sm"></i><span class="text-sm">Quản lý đề</span></div>
         </div>
       </li>
+
       <li>
         <div class="menu-item flex items-center justify-between cursor-pointer" onclick="toggleSubMenu(this)">
           <div class="flex items-center"><i class="fas fa-paper-plane mr-3 text-blue-300"></i>Nhiệm vụ học tập</div>
@@ -113,14 +115,14 @@ function loadFeatures() {
   featureGrid.appendChild(col3);
 }
 
-// --- KHỞI CHẠY (Bảo hiểm chống treo spin) ---
-window.onload = () => {
+// --- KHỞI CHẠY (Bảo hiểm chống xung đột JS và treo spin) ---
+document.addEventListener('DOMContentLoaded', () => {
   // Chạy giao diện
-  try { loadFeatures(); } catch (e) { console.error(e); }
+  try { loadFeatures(); } catch (e) { console.error("Lỗi khi load giao diện:", e); }
   
   // Ép tắt loading an toàn
   setTimeout(() => { 
     const loader = document.getElementById('loading');
     if(loader) loader.style.display = 'none'; 
   }, 600);
-};
+});

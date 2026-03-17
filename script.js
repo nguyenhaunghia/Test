@@ -1,7 +1,7 @@
 let questions = [];
 
 // ==================== CẤU HÌNH HỆ THỐNG ====================
-const API_URL = "https://script.google.com/macros/s/AKfycbyyyL5ZEnPaTmrxRndiW22t1mLBeNBYq50nM1SbGWnNMHiJQOj2W30-CPfAHCUWCLMu/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyGa2GUKExMVhJSu5PBjQzsC_DEfIJgxQLsN7H5teGU1f0yHQVDocxbBSrj7HirfNL3/exec";
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
 // ==================== GIAO TIẾP API & ĐIỀU HƯỚNG ====================
@@ -566,9 +566,15 @@ function renderQuizShared(questions, containerId, onProgressCallbackName) {
 }
 
 // ==================== HÀM CHẤM ĐIỂM VÀ HIỂN THỊ KẾT QUẢ DÙNG CHUNG ====================
-function calculateAndRenderResultsShared(questions, containerId, msgContainerId, userInfoInfoStr) {
+// Bổ sung tham số showAnswerOption ('All', 'Tr', 'Tr.Ans') để điều khiển ẩn/hiện đáp án
+function calculateAndRenderResultsShared(questions, containerId, msgContainerId, userInfoInfoStr, showAnswerOption = 'All') {
   let score = 0; let totalContents = 0;
   const answers = []; const chiTietDapAn = [];
+
+  // Chuẩn hóa option để dễ so sánh (tránh lỗi viết hoa viết thường)
+  const optionShow = String(showAnswerOption).trim().toLowerCase();
+  const isShowCorrectAns = optionShow === 'all' || optionShow === 'tr.ans';
+  const isShowExplanation = optionShow === 'all';
 
   questions.forEach((q, i) => {
     const selected = getSelectedAnswersShared(containerId, i);
@@ -603,10 +609,13 @@ function calculateAndRenderResultsShared(questions, containerId, msgContainerId,
   answers.forEach((a, i) => {
     const q = questions[i];
     const div = document.createElement('div');
+    // Luôn giữ hiệu ứng đúng (màu xanh), sai (màu đỏ) cho biết kết quả
     div.className = `result-item ${a.point === a.totalThisQ ? 'correct' : 'wrong'}`;
 
     let imageHTML = a.hinhanh ? `<div class="question-image-wrapper"><img src="https://drive.google.com/thumbnail?id=${a.hinhanh}&sz=1000" class="question-image" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` : '';
-    let explanationHTML = a.explanation && a.explanation.trim() !== '' ? `<div style="background:#f1f5f9; padding:12px; border-radius:8px; margin-top:12px; font-size:0.95rem; color:#475569;"><strong><i class="fas fa-lightbulb text-yellow-500"></i> Giải thích:</strong> ${a.explanation}</div>` : '';
+    
+    // ĐIỀU KIỆN: Chỉ show giải thích nếu option là 'All'
+    let explanationHTML = (isShowExplanation && a.explanation && a.explanation.trim() !== '') ? `<div style="background:#f1f5f9; padding:12px; border-radius:8px; margin-top:12px; font-size:0.95rem; color:#475569;"><strong><i class="fas fa-lightbulb text-yellow-500"></i> Hướng dẫn giải:</strong> ${a.explanation}</div>` : '';
 
     let resultHTML = '';
     if (a.isTrueFalse) {
@@ -616,13 +625,19 @@ function calculateAndRenderResultsShared(questions, containerId, msgContainerId,
         const user = a.selected[optIdx] || 'Chưa chọn';
         const correct = isCorrect ? 'Đúng' : 'Sai';
         const isUserCorrect = user === correct;
-        resultHTML += `<div style="padding:10px; background:#f8fafc; border-radius:8px; border-left:4px solid ${isUserCorrect ? '#10b981' : '#fb7185'};"><strong style="color:#1e293b;">${opt}</strong><br>Bạn chọn: <span style="font-weight:bold; color:${isUserCorrect ? '#10b981' : '#fb7185'}">${user}</span> | Đáp án: <span style="font-weight:bold; color:#10b981">${correct}</span></div>`;
+        
+        // ĐIỀU KIỆN: Khối hiển thị kết quả True/False
+        let htmlOption = `<div style="padding:10px; background:#f8fafc; border-radius:8px; border-left:4px solid ${isUserCorrect ? '#10b981' : '#fb7185'};"><strong style="color:#1e293b;">${opt}</strong><br>Bạn chọn: <span style="font-weight:bold; color:${isUserCorrect ? '#10b981' : '#fb7185'}">${user}</span>`;
+        if (isShowCorrectAns) {
+           htmlOption += ` | Đáp án: <span style="font-weight:bold; color:#10b981">${correct}</span>`;
+        }
+        htmlOption += `</div>`;
+        resultHTML += htmlOption;
       });
       resultHTML += '</div>';
     } else {
       const userSelectedContents = (a.selected.normal || []);
       const correctContents = Array.isArray(a.correct) ? a.correct : [a.correct];
-      
       const isSingleAnswer = q.TypeID === 'Typ_0001' || q.TypeID === 'Typ_0006' || correctContents.length === 1;
 
       if (isSingleAnswer) {
@@ -632,29 +647,34 @@ function calculateAndRenderResultsShared(questions, containerId, msgContainerId,
 
         resultHTML = `
           <div style="margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 8px;">
-            <div style="margin-bottom: 6px; font-size: 1.05rem;">
+            <div style="font-size: 1.05rem; margin-bottom: ${isShowCorrectAns ? '6px' : '0'};">
               <span style="font-weight: 700; color: #64748b;">Bạn chọn:</span>
               <span style="color: ${userColor}; font-weight: 700; margin-left: 8px;">${userAnsStr}</span>
             </div>
+            ${isShowCorrectAns ? `
             <div style="font-size: 1.05rem;">
               <span style="font-weight: 700; color: #10b981;">Đáp án chính xác:</span>
               <span style="color: #10b981; font-weight: 700; margin-left: 8px;">${correctAnsStr}</span>
             </div>
+            ` : ''}
           </div>
         `;
       } else {
         const userAnsLines = userSelectedContents.length > 0 ? userSelectedContents.map(c => `<div>• ${c}</div>`).join('') : '<em>Chưa chọn</em>';
         const correctAnsLines = correctContents.map(c => `<div>• ${c}</div>`).join('');
+        
         resultHTML = `
           <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
             <div style="padding:12px; background:#f8fafc; border-radius:8px;">
               <span style="font-weight:bold; color:#64748b;">Bạn chọn:</span> 
               <div style="color:${a.point === 0 && userSelectedContents.length > 0 ? '#fb7185' : '#004c6d'}; font-weight:600; margin-top:4px;">${userAnsLines}</div>
             </div>
+            ${isShowCorrectAns ? `
             <div style="padding:12px; background:#f0fdf4; border-radius:8px;">
               <span style="font-weight:bold; color:#10b981;">Đáp án chính xác:</span> 
               <div style="color:#059669; font-weight:600; margin-top:4px;">${correctAnsLines}</div>
             </div>
+            ` : ''}
           </div>`;
       }
     }

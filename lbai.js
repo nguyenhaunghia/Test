@@ -15,15 +15,15 @@ var timerId = null;
 var deLoaded = false;
 var dangLamBai = false;
 var REAL_SUBJECT_ID = ''; 
-var thoiDiemBatDau = 0; // Lưu thời điểm bắt đầu để tính giờ chuẩn xác
+var thoiDiemBatDau = 0; 
+var showAnswerConfig = 'All'; // Thêm biến lưu cấu hình ShowAnswer từ DB
 
 // =========================================================================
 // 1. KHỞI TẠO & KIỂM TRA ĐĂNG NHẬP
 // =========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  if (!requireLogin()) return; // Hàm này nằm trong script.js
+  if (!requireLogin()) return; 
 
-  // Hiển thị thông tin User lên Header
   document.getElementById('dispTen').textContent = currentUser.FullName || '...';
   document.getElementById('dispID').textContent = currentUser.UserID || '...';
   document.getElementById('dispMon').textContent = urlMon;
@@ -51,6 +51,9 @@ async function loadData() {
         throw new Error("Dữ liệu đề thi trống hoặc lỗi.");
     }
 
+    // LẤY CẤU HÌNH SHOW_ANSWER TỪ API VÀ LƯU VÀO BIẾN TOÀN CỤC
+    showAnswerConfig = res.data.testInfo.ShowAnswer || 'All';
+
     const rawQuestions = res.data.questions;
 
     // XỬ LÝ LOGIC ĐÁP ÁN VÀ XÁO TRỘN
@@ -58,7 +61,6 @@ async function loadData() {
         const typeID = q.TypeID;
         let correctTexts = []; 
         
-        // Bắt logic TypeID y như trang Ôn Tập
         if (typeID === 'Typ_0001' || typeID === 'Typ_0006') {
             if (q.options[0]) correctTexts.push(q.options[0]); 
         } else if (typeID === 'Typ_0002' || typeID === 'Typ_0007') {
@@ -81,13 +83,12 @@ async function loadData() {
 
         return {
           ...q,
-          answer: correctTexts, // Lưu mảng chữ chuẩn xác để Shared Engine chấm
+          answer: correctTexts, 
           options: typeof shuffleArrayShared === 'function' ? shuffleArrayShared([...validOptions]) : validOptions,
           loaiCauHoi: q.loaiCauHoi || '01 câu đúng'
         };
     });
 
-    // Xáo trộn thứ tự các câu hỏi
     if (typeof shuffleArrayShared === 'function') {
         window.questions = shuffleArrayShared(window.questions);
     }
@@ -95,7 +96,6 @@ async function loadData() {
     THOI_GIAN_LAM_BAI = res.data.thoiLuong * 60;
     timeLeft = THOI_GIAN_LAM_BAI;
     
-    // Lấy SubjectID chuẩn từ DB để LƯU KẾT QUẢ
     REAL_SUBJECT_ID = res.data.testInfo.SubjectID || urlMon;
     
     document.getElementById('dispMon').textContent = res.data.testInfo.SubjectName || REAL_SUBJECT_ID;
@@ -134,7 +134,7 @@ function updateProgressUI() {
       
       if (isAnswered) {
           answeredCount++;
-          if (palBtn) palBtn.classList.add('answered'); // Đổi màu xanh lá
+          if (palBtn) palBtn.classList.add('answered'); 
       } else {
           if (palBtn) palBtn.classList.remove('answered');
       }
@@ -151,7 +151,7 @@ function buildQuestionPalette() {
   if (!grid || !fabBtn) return;
   
   grid.innerHTML = ''; 
-  fabBtn.style.display = 'flex'; // Hiện nút nổi lên
+  fabBtn.style.display = 'flex'; 
   
   window.questions.forEach((q, i) => {
       const btn = document.createElement('button');
@@ -179,13 +179,12 @@ function buildQuestionPalette() {
 document.getElementById('btnStart').addEventListener('click', () => {
   if (!deLoaded || window.questions.length === 0) return;
   
-  thoiDiemBatDau = Date.now(); // Chốt giờ
+  thoiDiemBatDau = Date.now(); 
   
   document.getElementById('btnStart').style.display = 'none';
   document.getElementById('submit').style.display = 'flex';
   document.getElementById('submit').disabled = true;
   
-  // GỌI ENGINE DÙNG CHUNG ĐỂ VẼ GIAO DIỆN
   renderQuizShared(window.questions, 'quiz', 'updateProgressUI');
   buildQuestionPalette();
   
@@ -210,13 +209,13 @@ function startTimer() {
       clearInterval(timerId);
       if(timerDisplay) timerDisplay.textContent = "00:00";
       if(timerContainer) timerContainer.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Hết giờ!';
-      if (!daNop) document.getElementById('submit').click(); // ÉP NỘP BÀI
+      if (!daNop) document.getElementById('submit').click(); 
     }
   }, 1000);
 }
 
 // =========================================================================
-// 5. NỘP BÀI, CHẤM ĐIỂM & LƯU SERVER (BẢO TOÀN BỘ LOGIC SERVER GỐC)
+// 5. NỘP BÀI, CHẤM ĐIỂM & LƯU SERVER
 // =========================================================================
 document.getElementById('submit').addEventListener('click', async function() {
   const submitBtn = document.getElementById('submit');
@@ -227,17 +226,15 @@ document.getElementById('submit').addEventListener('click', async function() {
   clearInterval(timerId);
   submitBtn.style.display = 'none';
   
-  // Ẩn Bảng câu hỏi đi
   const fabBtn = document.getElementById('fabPaletteBtn');
   if(fabBtn) fabBtn.style.display = 'none';
 
   let thoiGianDaSuDungGiay = Math.floor((Date.now() - thoiDiemBatDau) / 1000);
   if (thoiGianDaSuDungGiay <= 0) thoiGianDaSuDungGiay = 1;
 
-  // GỌI ENGINE DÙNG CHUNG ĐỂ CHẤM ĐIỂM VÀ IN HTML
-  const result = calculateAndRenderResultsShared(window.questions, 'quiz', 'msg', currentUser.FullName);
+  // TRUYỀN BIẾN showAnswerConfig VÀO HÀM CHẤM ĐIỂM
+  const result = calculateAndRenderResultsShared(window.questions, 'quiz', 'msg', currentUser.FullName, showAnswerConfig);
   
-  // Thêm nút Quay lại nhiệm vụ đặc thù của lbai
   document.getElementById('msg').innerHTML += `
     <div style="text-align:center; margin-top:20px;">
         <a href="javascript:chuyenTrang('hsinh')" class="btn-ranking" style="max-width:350px; display:inline-flex; align-items:center; gap:8px;">
@@ -245,7 +242,6 @@ document.getElementById('submit').addEventListener('click', async function() {
         </a>
     </div>`;
 
-  // === BẢO TOÀN LỆNH LƯU ĐIỂM VÀ LOG ===
   try {
     const saveRes = await callAPI('saveTestResult', {
       SubjectID: REAL_SUBJECT_ID,

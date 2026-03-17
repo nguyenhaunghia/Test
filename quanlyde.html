@@ -67,6 +67,126 @@
 
   </main>
 
+
+<div id="editTestModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 hidden custom-scroll">
+    <div class="bg-white/95 backdrop-blur-xl border border-white/50 shadow-2xl rounded-[32px] w-[95%] max-w-[800px] max-h-[90vh] flex flex-col transform scale-95 transition-all duration-300">
+      
+      <div class="flex justify-between items-center px-8 py-5 border-b border-sky-100/60">
+        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-sm shadow-inner"><i class="fas fa-pen"></i></div>
+          Chỉnh sửa Đề thi
+        </h2>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-rose-500 transition-colors text-xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="p-8 overflow-y-auto custom-scroll flex-grow">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Mã đề</label>
+            <input type="text" id="editMaDe" readonly class="px-4 py-2.5 rounded-xl bg-slate-100/50 border border-slate-200 text-slate-500 font-bold cursor-not-allowed">
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Trạng thái</label>
+            <select id="editEnable" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-bold transition-all">
+              <option value="Yes">Hoạt động (Mở)</option>
+              <option value="No">Đã khóa</option>
+            </select>
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Môn</label>
+            <select id="editMon" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-bold transition-all custom-scroll">
+              <option value="">-- Chọn Môn --</option>
+              </select>
+          </div>
+          
+<div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Khối</label>
+            <select id="editKhoi" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-bold transition-all custom-scroll">
+              <option value="">-- Chọn Khối --</option>
+              </select>
+          </div>
+          
+          <div class="flex flex-col gap-1.5 md:col-span-2">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Chủ đề kiểm tra</label>
+            <input type="text" id="editChuDe" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-medium transition-all">
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Thời lượng làm bài</label>
+            <input type="number" id="editThoiLuong" min="0" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-medium transition-all">
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Số câu phải làm</label>
+            <input type="number" id="editSoCauHoi" min="0" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-medium transition-all">
+          </div>
+          
+          <div class="flex flex-col gap-1.5 md:col-span-2">
+            <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Ghi chú / Yêu cầu</label>
+            <textarea id="editGhiChu" rows="2" class="px-4 py-2.5 rounded-xl bg-[#f4f9fd] border border-sky-100 text-slate-700 focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 font-medium transition-all custom-scroll"></textarea>
+          </div>
+          
+          <div class="flex flex-col gap-1.5 md:col-span-2 bg-sky-50/50 p-5 rounded-2xl border border-sky-100">
+            <div class="flex justify-between items-end mb-3">
+              <label class="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Danh sách câu hỏi</label>
+              <div class="text-[12px] font-bold text-violet-600 bg-violet-100/60 px-3 py-1.5 rounded-lg border border-violet-200">
+                Total: <span id="editTongSoCau" class="text-sm">0</span>
+              </div>
+            </div>
+            
+            <label class="text-[11px] italic text-slate-400 mb-1"><i class="fas fa-info-circle mr-1"></i>Danh sách Checkbox. Bỏ check để xóa câu hỏi khỏi đề thi này:</label>
+            
+            <div id="editCheckboxContainer" class="flex flex-wrap gap-2.5 p-3 bg-white/80 border border-slate-200 rounded-xl max-h-[220px] overflow-y-auto custom-scroll shadow-sm">
+               </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="px-8 py-5 border-t border-sky-100/60 flex justify-end gap-3 bg-slate-50/80 rounded-b-[32px]">
+        <button onclick="closeEditModal()" class="px-6 py-2.5 rounded-xl font-bold text-slate-500 bg-slate-200/60 hover:bg-slate-200 transition-colors">Hủy bỏ</button>
+        <button onclick="saveEditTest()" class="px-6 py-2.5 rounded-xl font-bold text-white bg-cyan-500 hover:bg-cyan-600 shadow-[0_4px_15px_rgba(6,182,212,0.3)] transition-all hover:-translate-y-0.5 flex items-center gap-2">
+          <i class="fas fa-save"></i> Lưu cập nhật
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="copyTestModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 opacity-0 hidden custom-scroll">
+    <div class="bg-white/95 backdrop-blur-xl border border-white/50 shadow-2xl rounded-[32px] w-[90%] max-w-[450px] transform scale-95 transition-all duration-300 p-8">
+        
+        <div class="w-14 h-14 rounded-full bg-violet-100 text-violet-500 flex items-center justify-center mx-auto mb-5 text-2xl shadow-inner">
+            <i class="fas fa-copy"></i>
+        </div>
+        
+        <h3 class="text-xl font-bold text-slate-800 text-center mb-2">Nhân bản Đề thi</h3>
+        <p class="text-[13px] text-slate-500 text-center mb-6 leading-relaxed">
+            Bạn đang tạo bản sao cho đề thi <br><strong id="copyTargetId" class="text-violet-600 text-sm bg-violet-50 px-2 py-0.5 rounded-md border border-violet-100"></strong>
+        </p>
+        
+        <div class="bg-violet-50/50 border border-violet-100 rounded-2xl p-4 mb-8 shadow-sm hover:shadow-md transition-all">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="cbCopyQuestions" class="mt-1 w-4 h-4 text-violet-600 bg-white border-violet-300 rounded focus:ring-violet-400 focus:ring-2 cursor-pointer transition-all">
+                <div class="flex flex-col">
+                    <span class="text-[14px] font-bold text-slate-700">Nhân bản luôn các Câu hỏi</span>
+                    <span class="text-[12px] text-slate-500 mt-1 leading-relaxed">Các câu hỏi trong đề này sẽ được tạo thành các bản sao độc lập (ID tự động thêm đuôi <b class="text-violet-500">.001</b>).</span>
+                </div>
+            </label>
+        </div>
+        
+        <div class="flex items-center justify-center gap-3">
+            <button onclick="closeCopyModal()" class="flex-1 py-3 rounded-2xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors shadow-sm">Hủy bỏ</button>
+            <button onclick="executeCopyTest()" class="flex-1 py-3 rounded-2xl font-bold text-white bg-violet-500 hover:bg-violet-600 shadow-[0_4px_15px_rgba(139,92,246,0.4)] transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                <i class="fas fa-check"></i> Thực hiện
+            </button>
+        </div>
+    </div>
+  </div>  
+
+
   <div id="toast-container" class="toast-container"></div>
   <script src="script.js"></script>
   <script src="quanlyde.js"></script>

@@ -270,3 +270,42 @@ document.getElementById('submit').addEventListener('click', async function() {
     showToast("Lỗi khi ghi điểm lên hệ thống!", "error");
   }
 });
+
+
+// =========================================================================
+// 6. CHỐNG GIAN LẬN (ANTI-CHEAT): NGĂN RỜI TRANG / CHUYỂN TAB
+// =========================================================================
+
+// 6.1. Ngăn học sinh vô tình (hoặc cố ý) F5 tải lại trang hoặc đóng tab
+window.addEventListener('beforeunload', function (e) {
+    // Chỉ kích hoạt cảnh báo nếu đang làm bài và chưa nộp
+    if (dangLamBai && !daNop) {
+        e.preventDefault();
+        e.returnValue = ''; // Hiển thị hộp thoại cảnh báo mặc định của trình duyệt
+    }
+});
+
+// 6.2. Phát hiện hành vi chuyển sang Tab khác hoặc thu nhỏ trình duyệt đi tra Google
+document.addEventListener('visibilitychange', function() {
+    if (dangLamBai && !daNop && document.visibilityState === 'hidden') {
+        
+        // --- CÁCH 1: Chỉ cảnh báo răn đe (Đang dùng) ---
+        alert("CẢNH BÁO GIAN LẬN: Bạn vừa rời khỏi trang làm bài! Hành động này đã được hệ thống ghi nhận.");
+        
+        // --- CÁCH 2: Xử lý mạnh tay - Buộc nộp bài ngay lập tức ---
+        // Nếu bạn muốn học sinh hễ chuyển tab là bị thu bài luôn, 
+        // hãy xóa 2 dấu gạch chéo // ở 3 dòng code bên dưới:
+        
+        // alert("VI PHẠM: Bạn đã chuyển tab/rời khỏi màn hình thi. Hệ thống sẽ tự động nộp bài ngay lập tức!");
+        // document.getElementById('submit').click(); 
+    }
+});
+
+// 6.3. Phát hiện hành vi mở ứng dụng khác đè lên (Mất focus chuột khỏi trang web)
+window.addEventListener('blur', function() {
+    if (dangLamBai && !daNop) {
+        console.warn("Học sinh đang click ra ngoài phạm vi bài thi.");
+        // Có thể mở comment dòng dưới để hiển thị nhắc nhở nhẹ nhàng:
+        // showToast("Vui lòng tập trung vào bài thi, không thao tác ngoài màn hình!", "warning");
+    }
+});

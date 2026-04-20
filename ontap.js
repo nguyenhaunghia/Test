@@ -284,3 +284,44 @@ function startTimer() {
     }
   }, 1000);
 }
+
+
+// =========================================================================
+// 4. CHỐNG GIAN LẬN (ANTI-CHEAT): NGĂN RỜI TRANG / CHUYỂN TAB (Dành cho Ôn tập)
+// =========================================================================
+
+// Hàm kiểm tra trạng thái đang làm bài: Nút nộp bài đang hiện và chưa nộp bài
+function checkDangLamBaiOntap() {
+    const submitBtn = document.getElementById('submit');
+    return submitBtn && submitBtn.style.display === 'flex' && !daNop;
+}
+
+// 4.1. Ngăn học sinh vô tình (hoặc cố ý) F5 tải lại trang hoặc đóng tab
+window.addEventListener('beforeunload', function (e) {
+    if (checkDangLamBaiOntap()) {
+        e.preventDefault();
+        e.returnValue = ''; // Hiển thị hộp thoại cảnh báo mặc định của trình duyệt
+    }
+});
+
+// 4.2. Phát hiện hành vi chuyển sang Tab khác hoặc thu nhỏ trình duyệt đi tra Google
+document.addEventListener('visibilitychange', function() {
+    if (checkDangLamBaiOntap() && document.visibilityState === 'hidden') {
+        
+        // --- CÁCH 1: Cảnh báo răn đe ---
+        alert("CẢNH BÁO: Bạn vừa rời khỏi trang ôn tập! Hành động này đã được ghi nhận.");
+        
+        // --- CÁCH 2: Xử lý mạnh tay - Buộc nộp bài ngay lập tức ---
+        // Nếu muốn tự động thu bài, bạn xóa 2 dấu gạch chéo // ở dòng code bên dưới:
+        // document.getElementById('submit').click(); 
+    }
+});
+
+// 4.3. Phát hiện hành vi mở ứng dụng khác đè lên (Mất focus chuột khỏi trang web)
+window.addEventListener('blur', function() {
+    if (checkDangLamBaiOntap()) {
+        console.warn("Học sinh đang thao tác ngoài phạm vi bài ôn tập.");
+        // Nếu muốn, có thể dùng hàm showToast đã có sẵn trong dự án của bạn để nhắc nhở
+        // if (typeof showToast === 'function') showToast("Vui lòng tập trung ôn tập!", "warning");
+    }
+});

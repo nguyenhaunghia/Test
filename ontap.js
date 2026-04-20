@@ -313,7 +313,7 @@ document.addEventListener('visibilitychange', function() {
         
         // --- CÁCH 2: Xử lý mạnh tay - Buộc nộp bài ngay lập tức ---
         // Nếu muốn tự động thu bài, bạn xóa 2 dấu gạch chéo // ở dòng code bên dưới:
-        // document.getElementById('submit').click(); 
+        document.getElementById('submit').click(); 
     }
 });
 
@@ -322,6 +322,6 @@ window.addEventListener('blur', function() {
     if (checkDangLamBaiOntap()) {
         console.warn("Học sinh đang thao tác ngoài phạm vi bài ôn tập.");
         // Nếu muốn, có thể dùng hàm showToast đã có sẵn trong dự án của bạn để nhắc nhở
-        // if (typeof showToast === 'function') showToast("Vui lòng tập trung ôn tập!", "warning");
+        if (typeof showToast === 'function') showToast("Vui lòng tập trung ôn tập!", "warning");
     }
 });

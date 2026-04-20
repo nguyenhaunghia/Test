@@ -296,8 +296,8 @@ document.addEventListener('visibilitychange', function() {
         // Nếu bạn muốn học sinh hễ chuyển tab là bị thu bài luôn, 
         // hãy xóa 2 dấu gạch chéo // ở 3 dòng code bên dưới:
         
-        // alert("VI PHẠM: Bạn đã chuyển tab/rời khỏi màn hình thi. Hệ thống sẽ tự động nộp bài ngay lập tức!");
-        // document.getElementById('submit').click(); 
+        alert("VI PHẠM: Bạn đã chuyển tab/rời khỏi màn hình thi. Hệ thống sẽ tự động nộp bài ngay lập tức!");
+        document.getElementById('submit').click(); 
     }
 });
 
@@ -306,6 +306,6 @@ window.addEventListener('blur', function() {
     if (dangLamBai && !daNop) {
         console.warn("Học sinh đang click ra ngoài phạm vi bài thi.");
         // Có thể mở comment dòng dưới để hiển thị nhắc nhở nhẹ nhàng:
-        // showToast("Vui lòng tập trung vào bài thi, không thao tác ngoài màn hình!", "warning");
+        showToast("Vui lòng tập trung vào bài thi, không thao tác ngoài màn hình!", "warning");
     }
 });

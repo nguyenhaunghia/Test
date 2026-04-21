@@ -290,14 +290,14 @@ document.addEventListener('visibilitychange', function() {
     if (dangLamBai && !daNop && document.visibilityState === 'hidden') {
         
         // --- CÁCH 1: Chỉ cảnh báo răn đe (Đang dùng) ---
-        alert("CẢNH BÁO GIAN LẬN: Bạn vừa rời khỏi trang làm bài! Hành động này đã được hệ thống ghi nhận.");
+        alert("Có vẻ như bạn vừa rời khỏi trang làm bài! Hành động này đã được hệ thống ghi nhận.");
         
         // --- CÁCH 2: Xử lý mạnh tay - Buộc nộp bài ngay lập tức ---
         // Nếu bạn muốn học sinh hễ chuyển tab là bị thu bài luôn, 
         // hãy xóa 2 dấu gạch chéo // ở 3 dòng code bên dưới:
         
-        alert("VI PHẠM: Bạn đã chuyển tab/rời khỏi màn hình thi. Hệ thống sẽ tự động nộp bài ngay lập tức!");
-        document.getElementById('submit').click(); 
+        //alert("VI PHẠM: Bạn đã chuyển tab/rời khỏi màn hình thi. Hệ thống sẽ tự động nộp bài ngay lập tức!");
+        //document.getElementById('submit').click(); 
     }
 });
 

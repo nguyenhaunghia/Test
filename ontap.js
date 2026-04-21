@@ -309,11 +309,11 @@ document.addEventListener('visibilitychange', function() {
     if (checkDangLamBaiOntap() && document.visibilityState === 'hidden') {
         
         // --- CÁCH 1: Cảnh báo răn đe ---
-        alert("CẢNH BÁO: Bạn vừa rời khỏi trang ôn tập! Hành động này đã được ghi nhận.");
+        alert("Bạn vừa rời khỏi trang ôn tập! Hành động này đã được ghi nhận.");
         
         // --- CÁCH 2: Xử lý mạnh tay - Buộc nộp bài ngay lập tức ---
         // Nếu muốn tự động thu bài, bạn xóa 2 dấu gạch chéo // ở dòng code bên dưới:
-        document.getElementById('submit').click(); 
+        // document.getElementById('submit').click(); 
     }
 });
 
